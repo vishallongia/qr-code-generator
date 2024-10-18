@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+</head>
+
+<body>
+    <button class="menu-toggle">☰</button>
+    <div class="side-menu">
+        <button class="menu-close">×</button>
+        <div class="menu-item active" data-section="generate">Generate QR</div>
+        <div class="menu-item" data-section="show">Show My QR</div>
+    </div>
+    <div class="main-content">
+        <h1 class="fade-in">QR Code Generator</h1>
+        <div id="generate-section" class="fade-in">
+            <div class="input-group">
+                <label for="qr-type">Select QR Type:</label>
+                <select id="qr-type">
+                    <option value="media">Media</option>
+                    <option value="text">Text File</option>
+                    <option value="url">URL</option>
+                </select>
+            </div>
+            <div id="input-fields"></div>
+            <!-- Submit Button Added Here -->
+            <button class="submit-btn">Generate QR Code</button>
+        </div>
+        <div id="show-section" class="fade-in" style="display: none;">
+            <p>Your generated QR codes will appear here.</p>
+        </div>
+    </div>
+    <button class="logout-btn fade-in">Logout</button>
+
+    <script src="/js/dashboard.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js"></script>
+    <script src="/js/toastify-setup.js"></script>
+    <script src="/js/generateqr-api.js"></script>
+
+</body>
+
+</html>
