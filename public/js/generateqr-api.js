@@ -41,6 +41,7 @@ submitBtn.addEventListener("click", async (event) => {
     const result = await generateQRCode(formData); // Call the function to generate the QR code
     // form.reset(); // Reset the form after successful submission
     showToast(result.message, "success"); // Show success message
+    window.location.reload();
   } catch (error) {
     showToast(error.message || "Error generating QR code.", "error"); // Show error message
   }

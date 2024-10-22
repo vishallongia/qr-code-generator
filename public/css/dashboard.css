@@ -2,8 +2,8 @@
   --primary-bg-color: #333;
   --primary-text-color: #fff;
   --secondary-bg-color: #555;
-  --accent-color: #f44336;
-  --hover-accent-color: #d32f2f;
+  --accent-color: #26a69a;
+  --hover-accent-color: #7dcec6;
   --light-bg-color: #f0f0f0;
   --text-dark: #333;
   --text-light: #555;
@@ -20,6 +20,7 @@
   padding: 0;
   box-sizing: border-box;
 }
+
 
 body {
   font-family: "Arial", sans-serif;
@@ -213,4 +214,7 @@ input[type="file"] {
 
 .submit-btn:hover {
   background-color: var(--hover-accent-color);
+}
+#show-section{
+  width: 100%;
 }

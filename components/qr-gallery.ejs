@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Gallery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/qr-gallery.css">
+</head>
+
+<body>
+    <div class="gallery">
+        <% if (qrCodes.length> 0) { %>
+            <% qrCodes.forEach(function(qrCode) { %>
+                <div class="qr-box">
+                    <div class="qr-title">
+                        <%= qrCode.code %>
+                    </div>
+                    <div class="qr-placeholder" onclick="openModal('<%= qrCode.qr_image %>', '<%= qrCode.code %>')">
+                        <img src="<%= qrCode.qr_image %>" alt="QR Code" style="width: 100%; height: auto;">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn" title="Update" onclick="showGenerateSection()"><i
+                                class="fas fa-edit"></i></button>
+                        <button class="btn" title="Download" onclick="downloadQRCode('<%= qrCode.qr_image %>')"><i
+                                class="fas fa-download"></i></button>
+                        <button class="btn" title="Delete" onclick="deleteQRCode('<%= qrCode._id %>')"><i
+                                class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <% }) %>
+                    <% } else { %>
+                        <p>No QR codes found.</p>
+                        <% } %>
+    </div>
+
+    <div id="qrModal" class="modal" onclick="closeModal()">
+        <div class="modal-content">
+            <!-- <span class="close">&times;</span>
+            <h2 id="modalTitle" style="margin-bottom: 10px; text-align: center;"></h2>
+            <img class="modal-image" id="modalImage" src="" alt="QR Code"> -->
+            <div id="generate-section" class="fade-in" style="display: none;">
+                <div class="input-group">
+                    <label for="qr-type">Select QR Type:</label>
+                    <select id="qr-type">
+                        <option value="media">Media</option>
+                        <option value="text">Text File</option>
+                        <option value="url">URL</option>
+                    </select>
+                </div>
+            </div>
+            <div id="input-fields"></div>
+            <button class="submit-btn">Generate QR Code</button>
+        </div>
+    </div>
+    <script src="/js/api-calls.js"></script>
+    <script src="/js/qr-gallery.js"></script>
+
+</body>
+
+</html>
