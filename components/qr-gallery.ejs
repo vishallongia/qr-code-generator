@@ -21,7 +21,7 @@
                         <img src="<%= qrCode.qr_image %>" alt="QR Code" style="width: 100%; height: auto;">
                     </div>
                     <div class="button-group">
-                        <button class="btn" title="Update" onclick="showGenerateSection()"><i
+                        <button class="btn" title="Update" onclick="showGenerateSection('<%= qrCode._id %>')"><i
                                 class="fas fa-edit"></i></button>
                         <button class="btn" title="Download" onclick="downloadQRCode('<%= qrCode.qr_image %>')"><i
                                 class="fas fa-download"></i></button>
@@ -36,22 +36,28 @@
     </div>
 
     <div id="qrModal" class="modal" onclick="closeModal()">
-        <div class="modal-content">
-            <!-- <span class="close">&times;</span>
-            <h2 id="modalTitle" style="margin-bottom: 10px; text-align: center;"></h2>
-            <img class="modal-image" id="modalImage" src="" alt="QR Code"> -->
-            <div id="generate-section" class="fade-in" style="display: none;">
+        <div class="modal-content" onclick="event.stopPropagation()"> <!-- Prevent event propagation here -->
+            <div id="view-qr">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2 id="modalTitle" style="margin-bottom: 10px; text-align: center;"></h2>
+                <img class="modal-image" id="modalImage" src="" alt="QR Code">
+            </div>
+
+            <!-- QR Code Generator Section -->
+            <div id="update-section" class="fade-in">
                 <div class="input-group">
-                    <label for="qr-type">Select QR Type:</label>
-                    <select id="qr-type">
+                    <label for="qr-type-update">Select QR Type:</label>
+                    <select id="qr-type-update"> <!-- Dropdown for QR type -->
                         <option value="media">Media</option>
                         <option value="text">Text File</option>
                         <option value="url">URL</option>
                     </select>
                 </div>
+                <div id="input-fields-update"></div>
+
+                <!-- Submit Button -->
+                <button class="submit-btn" id="submit-btn-update">Update QR Code</button>
             </div>
-            <div id="input-fields"></div>
-            <button class="submit-btn">Generate QR Code</button>
         </div>
     </div>
     <script src="/js/api-calls.js"></script>

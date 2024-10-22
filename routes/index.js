@@ -8,7 +8,7 @@ const QRCodeData = require("../models/QRCODEDATA"); // Adjust the path as necess
 const qr = require("qrcode");
 const multer = require("multer");
 const path = require("path");
-const { createCanvas, loadImage } = require("canvas");
+const fs = require("fs");
 
 // Home route
 router.get("/", authMiddleware, async (req, res) => {
