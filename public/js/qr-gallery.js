@@ -79,8 +79,6 @@ updateInputFields();
 // Handle form submission
 submitBtnUpdate.addEventListener("click", async (event) => {
   event.preventDefault(); // Prevent default form submission
-  console.log("i am in");
-
   const formData = new FormData(); // Create a FormData object
   const type = qrTypeUpdate.value; // Get the selected type
 
@@ -121,9 +119,6 @@ submitBtnUpdate.addEventListener("click", async (event) => {
     const response = await fetch(`/update/${qrCodeId}`, {
       method: "PUT",
       body: formData,
-      headers: {
-        Authorization: "Bearer your_jwt_token_here", // Optional: Add authorization token if needed
-      },
     });
 
     const result = await response.json();
