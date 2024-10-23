@@ -483,9 +483,9 @@ router.put(
         });
       }
 
-      // Generate a new 6-digit alphanumeric code
-      const alphanumericCode = generateAlphanumericCode();
-      qrCode.code = alphanumericCode; // Update the code
+      // // Generate a new 6-digit alphanumeric code
+      // const alphanumericCode = generateAlphanumericCode();
+      // qrCode.code = alphanumericCode; // Update the code
       qrCode.type = type; // Change the type
 
       // Save the updated QR code data (keep the same QR image)
