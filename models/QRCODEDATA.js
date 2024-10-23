@@ -14,7 +14,7 @@ const qrCodeSchema = new mongoose.Schema(
     },
     url: {
       type: String,
-      required: true, // The URL of the uploaded file or provided URL
+      // required: true, // The URL of the uploaded file or provided URL
     },
     qr_image: {
       type: String,

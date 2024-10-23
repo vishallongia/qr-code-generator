@@ -9,6 +9,35 @@ const qr = require("qrcode");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+// Set up multer for file uploads with custom storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Destination folder
+  },
+  filename: (req, file, cb) => {
+    // Generate a unique ID for the filename
+    const uniqueId = generateUniqueId(); // Call your unique ID function
+    const ext = path.extname(file.originalname); // Extract the file extension
+    const newFilename = `${uniqueId}${ext}`; // Combine unique ID and extension
+    cb(null, newFilename); // Save with new filename
+  },
+});
+
+// Initialize multer with the defined storage
+const upload = multer({ storage });
+
+// Function to generate a unique ID
+function generateUniqueId() {
+  return Math.random().toString(36).substring(2, 8) + Date.now().toString(36);
+}
+function generateAlphanumericCode(length = 6) {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < length; i++) {
+    code += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return code;
+}
 
 // Home route
 router.get("/", authMiddleware, async (req, res) => {
@@ -26,7 +55,6 @@ router.get("/", authMiddleware, async (req, res) => {
 // Login route
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  console.log(email, password);
   try {
     // Check if user exists
     const user = await User.findOne({ email });
@@ -129,7 +157,6 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
         message: "No QR codes found.",
       });
     }
-    console.log(qrCodes);
   } catch (error) {
     console.error("Error fetching QR code data:", error);
     res.status(500).render("dashboard", {
@@ -139,22 +166,6 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
     });
   }
 });
-
-// Set up multer for file uploads
-const upload = multer({ dest: "uploads/" });
-
-// Function to generate a unique ID
-function generateUniqueId() {
-  return Math.random().toString(36).substring(2, 8) + Date.now().toString(36);
-}
-function generateAlphanumericCode(length = 6) {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let code = "";
-  for (let i = 0; i < length; i++) {
-    code += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return code;
-}
 
 router.post(
   "/generate",
@@ -170,7 +181,7 @@ router.post(
 
     try {
       // Set the URL to the desired link (e.g., Facebook)
-      url = "https://www.facebook.com"; // Link to append to the generated QR code
+      // Link to append to the generated QR code
 
       // Handle media and text file uploads
       let mediaFilePath;
@@ -183,7 +194,13 @@ router.post(
             .status(400)
             .json({ message: "Media file not attached", type: "error" });
         }
-        mediaFilePath = req.files["media-file"][0].path; // Path to uploaded media file
+        // Assuming req.files["media-file"] is correctly populated by your upload middleware
+        mediaFilePath = req.files["media-file"][0].path;
+        // const mediaFileOriginalName = req.files["media-file"][0].originalname;
+
+        // Append the extension directly
+        // mediaFilePathWithExt =
+        //   mediaFilePath + path.extname(mediaFileOriginalName); // Path to uploaded media file
       } else if (type === "text") {
         // Check if text file is attached
         if (!req.files["text-file"]) {
@@ -191,7 +208,12 @@ router.post(
             .status(400)
             .json({ message: "Text file not attached", type: "error" });
         }
-        textFilePath = req.files["text-file"][0].path; // Path to uploaded text file
+        // Assuming req.files["media-file"] is correctly populated by your upload middleware
+        textFilePath = req.files["text-file"][0].path;
+        // const textFileOriginalName = req.files["text-file"][0].originalname;
+
+        // Append the extension directly
+        // textFilePathWithExt = textFilePath + path.extname(textFileOriginalName); // Path to uploaded media file
       } else if (type === "url") {
         // Validate URL
         url = req.body.url;
@@ -213,11 +235,13 @@ router.post(
         qrCodeFilename
       ); // Full path to save the QR code image
 
-      // Generate and save the QR code image
-      await qr.toFile(qrCodeImagePath, url); // Use the updated URL for the QR code
-
       // Generate the 6-digit alphanumeric code
       const alphanumericCode = generateAlphanumericCode();
+      const redirectionLink = `${req.protocol}://${req.get(
+        "host"
+      )}/${alphanumericCode}`;
+      // Generate and save the QR code image
+      await qr.toFile(qrCodeImagePath, redirectionLink); // Use the updated URL for the QR code
 
       // Save QR code data to the database
       const qrCode = new QRCodeData({
@@ -227,7 +251,6 @@ router.post(
         qr_image: `/qr_images/${qrCodeFilename}`, // Store the URL path to access the image
         code: alphanumericCode, // Add the generated code here
       });
-
       // Save additional media or text file paths if applicable
       if (type === "media") {
         qrCode.media_url = mediaFilePath; // Save media file path
@@ -315,10 +338,9 @@ router.put(
     { name: "text-file", maxCount: 1 },
   ]),
   async (req, res) => {
-    const { type } = req.body; // Ensure type is sent in the request body
+    const { type, url: newUrl } = req.body; // Get type and URL from request body
     const qrCodeId = req.params.id;
     const user_id = req.user.userId;
-    let url;
 
     try {
       // Fetch the existing QR code by ID
@@ -337,77 +359,146 @@ router.put(
           .json({ message: "Unauthorized access", type: "error" });
       }
 
-      // Handle media and text file updates if provided
-      if (type === "media") {
-        if (!req.files["media-file"]) {
+      // Store existing file paths for deletion later if necessary
+      const existingMediaUrl = qrCode.media_url;
+      const existingTextUrl = qrCode.text_url;
+
+      // Handle updates based on the type
+      if (type === "url") {
+        if (!newUrl) {
           return res
             .status(400)
-            .json({ message: "Media file not attached", type: "error" });
+            .json({ message: "Url is missing", type: "error" });
         }
-        url = "https://www.facebook.com"; // Default URL (or any other default) for media
+        qrCode.url = newUrl; // Update the URL in the database
+
+        // Clear media_url and text_url if type is url
+        qrCode.media_url = null;
+        qrCode.text_url = null;
       } else if (type === "text") {
         if (!req.files["text-file"]) {
           return res
             .status(400)
             .json({ message: "Text file not attached", type: "error" });
         }
-        url = "https://www.facebook.com"; // Default URL for text
-      } else if (type === "url") {
-        url = req.body.url;
-        if (!url) {
+        qrCode.text_url = req.files["text-file"][0].path; // Update text file path
+
+        // Clear media_url if type is text
+        qrCode.media_url = null;
+        qrCode.url = null;
+      } else if (type === "media") {
+        if (!req.files["media-file"]) {
           return res
             .status(400)
-            .json({ message: "Url is missing", type: "error" });
+            .json({ message: "Media file not attached", type: "error" });
         }
+        qrCode.media_url = req.files["media-file"][0].path; // Update media file path
+
+        // Clear text_url if type is media
+        qrCode.text_url = null;
+        qrCode.url = null;
       } else {
         return res.status(400).json({ message: "Invalid type", type: "error" });
       }
 
-      // Delete the old QR code image
-      const oldQRCodeImagePath = path.join(
-        __dirname,
-        "../qr_images",
-        path.basename(qrCode.qr_image)
-      );
-      fs.unlink(oldQRCodeImagePath, (err) => {
-        if (err) {
-          console.error("Error deleting old QR image:", err);
-        }
-      });
+      // Remove existing files if they were previously uploaded
+      if (existingMediaUrl && qrCode.media_url === null) {
+        const existingMediaPath = path.resolve(
+          __dirname,
+          "..",
+          existingMediaUrl
+        ); // Resolve the path
+        console.log(`Attempting to delete media file at: ${existingMediaPath}`); // Log the path
+        fs.unlink(existingMediaPath, (err) => {
+          if (err) {
+            console.error("Error deleting existing media file:", err);
+          } else {
+            console.log("Successfully deleted media file.");
+          }
+        });
+      }
+      if (existingTextUrl && qrCode.text_url === null) {
+        const existingTextPath = path.resolve(
+          __dirname,
+          "..",
+          existingMediaUrl
+        ); // Resolve the path
+        console.log(`Attempting to delete text file at: ${existingTextPath}`); // Log the path
+        fs.unlink(existingTextPath, (err) => {
+          if (err) {
+            console.error("Error deleting existing text file:", err);
+          } else {
+            console.log("Successfully deleted text file.");
+          }
+        });
+      }
 
-      // Generate a new unique filename for the updated QR code
-      const qrCodeFilename = `${generateUniqueId()}.png`;
-      const qrCodeImagePath = path.join(
-        __dirname,
-        "../qr_images",
-        qrCodeFilename
-      );
+      // Generate a new 6-digit alphanumeric code
+      const alphanumericCode = generateAlphanumericCode();
+      qrCode.code = alphanumericCode; // Update the code
+      qrCode.type = type; // Change the type
 
-      // Generate and save the new QR code image based on the URL
-      await qr.toFile(qrCodeImagePath, url);
-
-      // Update the QR image path in the database
-      qrCode.qr_image = `/qr_images/${qrCodeFilename}`;
-
+      // Save the updated QR code data (keep the same QR image)
       await qrCode.save();
 
       // Send a response back to the client
       res.status(200).json({
-        message: "QR Code image updated successfully.",
+        message: "QR Code updated successfully.",
         qrCode: {
           id: qrCode._id,
           user_id,
-          type: qrCode.type, // Keep the existing type
-          url,
-          qr_image: qrCode.qr_image,
-          code: qrCode.code, // Keep the existing code
+          type: qrCode.type, // The updated or existing type
+          url: qrCode.url, // The updated or existing URL
+          qr_image: qrCode.qr_image, // Keep the existing QR image (no change)
+          code: qrCode.code, // The updated alphanumeric code
         },
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Error updating QR code image." });
+      res.status(500).json({ message: "Error updating QR code." });
     }
   }
 );
+
+// Route to handle alphanumeric codes
+router.get("/code/:alphanumericCode", async (req, res) => {
+  try {
+    const { alphanumericCode } = req.params; // Get alphanumericCode from the URL
+
+    // Find the record using the alphanumeric code
+    const codeData = await QRCodeData.findOne({ code: alphanumericCode });
+
+    if (!codeData) {
+      // If no data found for the alphanumeric code
+      return res.status(404).render("error", {
+        message: "Code not found.",
+        type: "error", // Used for toast or error notification
+      });
+    }
+
+    // Check the type of the code and handle accordingly
+    if (codeData.type === "url") {
+      // Redirect to the URL found in the database if type is 'url'
+      return res.redirect(codeData.url); // Redirects to the URL
+    } else if (codeData.type === "media") {
+      // Redirect to the media URL if type is 'media'
+      return res.redirect(
+        `${req.protocol}://${req.get("host")}/${codeData.media_url}`
+      ); // Assuming media_url is a relative path (e.g., uploads/)
+    } else {
+      // If the type is not valid, return an error
+      return res.status(400).render("error", {
+        message: "Invalid type associated with this code.",
+        type: "error",
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching code data:", error);
+    return res.status(500).render("error", {
+      message: "An error occurred while processing the code.",
+      type: "error",
+    });
+  }
+});
 
 module.exports = router;
