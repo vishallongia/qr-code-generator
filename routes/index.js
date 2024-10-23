@@ -239,7 +239,7 @@ router.post(
       const alphanumericCode = generateAlphanumericCode();
       const redirectionLink = `${req.protocol}://${req.get(
         "host"
-      )}/${alphanumericCode}`;
+      )}/code/${alphanumericCode}`;
       // Generate and save the QR code image
       await qr.toFile(qrCodeImagePath, redirectionLink); // Use the updated URL for the QR code
 
