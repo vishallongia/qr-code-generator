@@ -296,7 +296,6 @@ router.post("/logout", (req, res) => {
   }
 });
 
-// Delete Route
 router.delete("/delete/:id", authMiddleware, async (req, res) => {
   const userId = req.user.userId;
   const { id } = req.params; // Record ID from the request parameters
@@ -316,9 +315,60 @@ router.delete("/delete/:id", authMiddleware, async (req, res) => {
       });
     }
 
-    // Render success message
+    // Store the file paths for media and text files
+    const existingMediaUrl = qrCode.media_url;
+    const existingTextUrl = qrCode.text_url;
+    const existingQrImage = qrCode.qr_image;
+
+    // Delete the associated media file if it exists
+    if (existingMediaUrl) {
+      const mediaFilePath = path.resolve(__dirname, "..", existingMediaUrl);
+      console.log(mediaFilePath, "new here");
+      console.log(`Attempting to delete media file at: ${mediaFilePath}`);
+      fs.unlink(mediaFilePath, (err) => {
+        if (err) {
+          console.error("Error deleting media file:", err);
+        } else {
+          console.log("Media file deleted successfully.");
+        }
+      });
+    }
+
+    // Delete the associated text file if it exists
+    if (existingTextUrl) {
+      const textFilePath = path.resolve(__dirname, "..", existingTextUrl);
+      console.log(`Attempting to delete text file at: ${textFilePath}`);
+      fs.unlink(textFilePath, (err) => {
+        if (err) {
+          console.error("Error deleting text file:", err);
+        } else {
+          console.log("Text file deleted successfully.");
+        }
+      });
+    }
+
+    // Check if the QR image file exists before attempting to delete it
+    if (existingQrImage) {
+      const qrImageFilePath = path.join(__dirname, "..", existingQrImage); // Adjusted to the correct path
+      console.log(`Attempting to delete QR image file at: ${qrImageFilePath}`);
+      fs.access(qrImageFilePath, fs.constants.F_OK, (err) => {
+        if (err) {
+          console.error("QR image file does not exist:", err);
+        } else {
+          fs.unlink(qrImageFilePath, (err) => {
+            if (err) {
+              console.error("Error deleting QR image file:", err);
+            } else {
+              console.log("QR image file deleted successfully.");
+            }
+          });
+        }
+      });
+    }
+
+    // Render success message after successful deletion
     res.status(200).json({
-      message: "QR Code deleted successfully!",
+      message: "QR Code and associated files deleted successfully!",
       type: "success",
     });
   } catch (error) {
