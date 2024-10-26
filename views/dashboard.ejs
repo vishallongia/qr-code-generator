@@ -20,6 +20,10 @@
         <!-- <h1 class="fade-in">QR Code Generator</h1> -->
         <div id="generate-section" class="fade-in">
             <div class="input-group">
+                <label for="qr-name">QR Name:</label>
+                <input type="text" id="qr-name" placeholder="Enter QR Name">
+            </div>
+            <div class="input-group">
                 <label for="qr-type">Select QR Type:</label>
                 <select id="qr-type">
                     <option value="media">Media</option>
@@ -32,8 +36,8 @@
             <button class="submit-btn">Generate QR Code</button>
         </div>
         <div id="show-section" class="fade-in" style="display: none;">
-             <!-- Include the header partial -->
-             <%- include('../components/qr-gallery'); -%>
+            <!-- Include the header partial -->
+            <%- include('../components/qr-gallery'); -%>
         </div>
     </div>
     <button class="logout-btn fade-in">Logout</button>
