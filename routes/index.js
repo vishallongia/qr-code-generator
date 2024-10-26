@@ -1,3 +1,4 @@
+require("dotenv").config(); // Load environment variables
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
@@ -39,6 +40,8 @@ function generateAlphanumericCode(length = 6) {
   return code;
 }
 
+//All Routes
+
 // Home route
 router.get("/", authMiddleware, async (req, res) => {
   try {
@@ -76,10 +79,14 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: process.env.JWT_EXPIRATION }
     );
     // Set token and user ID in cookies
-    res.cookie("token", token, { httpOnly: false, maxAge: 3600000 }); // Expires in 1 hour
+
+    res.cookie("token", token, {
+      httpOnly: false,
+      maxAge: Number(process.env.COOKIE_EXPIRATION),
+    }); // Expires in 1 hour
     // res.cookie("userId", user._id.toString(), {
     //   httpOnly: false,
     //   maxAge: 3600000,
@@ -101,12 +108,12 @@ router.post("/register", async (req, res) => {
   const { fullName, email, password, confirmPassword } = req.body;
 
   // Validate passwords
-  if (password !== confirmPassword) {
-    return res.status(400).json({
-      message: "Passwords do not match",
-      type: "error",
-    });
-  }
+  // if (password !== confirmPassword) {
+  //   return res.status(400).json({
+  //     message: "Passwords do not match",
+  //     type: "error",
+  //   });
+  // }
 
   try {
     // Check if user already exists
@@ -114,7 +121,7 @@ router.post("/register", async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         message: "Email already in use",
-        type: "error", // Send type as 'error'
+        type: "error",
       });
     }
 
@@ -123,16 +130,30 @@ router.post("/register", async (req, res) => {
     const newUser = new User({ fullName, email, password: hashedPassword });
     await newUser.save();
 
-    // Render success message
+    // Generate JWT token for the new user
+    const token = jwt.sign(
+      { userId: newUser._id, email: newUser.email },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRATION }
+    );
+
+    // Set token in cookies
+    res.cookie("token", token, {
+      httpOnly: false,
+      maxAge: Number(process.env.COOKIE_EXPIRATION),
+    }); // Expires in 1 hour
+
+    // Send success response with token
     res.status(201).json({
       message: "Registration successful!",
-      type: "success", // Send type as 'success'
+      token,
+      type: "success",
     });
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({
       message: "An error occurred during registration",
-      type: "error", // Send type as 'error'
+      type: "error",
     });
   }
 });
@@ -239,7 +260,7 @@ router.post(
       const alphanumericCode = generateAlphanumericCode();
       const redirectionLink = `${req.protocol}://${req.get(
         "host"
-      )}/code/${alphanumericCode}`;
+      )}/${alphanumericCode}`;
       // Generate and save the QR code image
       await qr.toFile(qrCodeImagePath, redirectionLink); // Use the updated URL for the QR code
 
@@ -511,7 +532,7 @@ router.put(
 );
 
 // Route to handle alphanumeric codes
-router.get("/code/:alphanumericCode", async (req, res) => {
+router.get("/:alphanumericCode([a-zA-Z0-9]{6})", async (req, res) => {
   try {
     const { alphanumericCode } = req.params; // Get alphanumericCode from the URL
 
@@ -547,6 +568,19 @@ router.get("/code/:alphanumericCode", async (req, res) => {
     return res.status(500).render("error", {
       message: "An error occurred while processing the code.",
       type: "error",
+    });
+  }
+});
+
+// Home route
+router.get("/newqr", async (req, res) => {
+  try {
+    res.render("qr"); // Send type as 'success'
+  } catch (error) {
+    console.error("Error generating QR code:", error);
+    res.status(500).render("index", {
+      message: "Failed to generate QR code",
+      type: "error", // Send type as 'error'
     });
   }
 });

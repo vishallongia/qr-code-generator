@@ -1,5 +1,4 @@
 require("dotenv").config(); // Load environment variables
-
 const express = require("express");
 const app = express();
 const connectDB = require("./db"); // Import the database connection

@@ -63,6 +63,7 @@ async function handleRegister(event) {
   try {
     const result = await registerUser(data); // Call the API function
     showToast(result.message, "success"); // Show success message
+    window.location.href = "/dashboard";
     form.reset(); // Reset the form after successful submission
   } catch (error) {
     showToast(error.message || "An error occurred. Please try again.", "error"); // Show error message
