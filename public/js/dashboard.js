@@ -108,10 +108,8 @@ function generateQRCodeFe() {
   const alphanumericCode = generateAlphanumericCode();
 
   // Generate the QR text URL dynamically
-  const qrText = `${window.location.protocol}//${window.location.host}/${alphanumericCode}`;
-  document.getElementById(
-    "qr-text"
-  ).value = `http://localhost:3000/${alphanumericCode}`;
+  const qrUrl = `${window.location.protocol}//${window.location.host}/${alphanumericCode}`;
+  document.getElementById("qr-text").value = `${qrUrl}`;
 
   document.getElementById("qr-code-key").value = alphanumericCode;
   const qrColor = document.getElementById("qr-color").value;
