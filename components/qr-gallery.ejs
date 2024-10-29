@@ -15,18 +15,19 @@
             <% qrCodes.forEach(function(qrCode) { %>
                 <div class="qr-box">
                     <div class="qr-title">
-                        <%= qrCode.code %>
+                        <%= qrCode.qrName %>
                     </div>
-                    <div class="qr-placeholder" onclick="openModal('<%= qrCode.qr_image %>', '<%= qrCode.code %>')">
-                        <img src="<%= qrCode.qr_image %>" alt="QR Code" style="width: 100%; height: auto;">
-                    </div>
+                    <div class="qr-placeholder" id="qr-container-<%= qrCode._id %>"></div>
                     <div class="button-group">
-                        <button class="btn" title="Update" onclick="showGenerateSection('<%= qrCode._id %>')"><i
-                                class="fas fa-edit"></i></button>
-                        <button class="btn" title="Download" onclick="downloadQRCode('<%= qrCode.qr_image %>')"><i
-                                class="fas fa-download"></i></button>
-                        <button class="btn" title="Delete" onclick="deleteQRCode('<%= qrCode._id %>')"><i
-                                class="fas fa-trash"></i></button>
+                        <button class="btn" title="Update" onclick="showGenerateSection(<%= JSON.stringify(qrCode) %>)">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn" title="Download" onclick="downloadQRCode('<%= qrCode._id %>')">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn" title="Delete" onclick="deleteQRCode('<%= qrCode._id %>')">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
                 <% }) %>
@@ -46,6 +47,10 @@
             <!-- QR Code Generator Section -->
             <div id="update-section" class="fade-in">
                 <div class="input-group">
+                    <label for="qr-name">QR Name:</label>
+                    <input type="text" id="qr-name-update" placeholder="Enter QR Name">
+                </div>
+                <div class="input-group">
                     <label for="qr-type-update">Select QR Type:</label>
                     <select id="qr-type-update"> <!-- Dropdown for QR type -->
                         <option value="media">Media</option>
@@ -53,8 +58,50 @@
                         <option value="url">URL</option>
                     </select>
                 </div>
-                <div id="input-fields-update"></div>
 
+                <div id="input-fields-update"></div>
+                <div class="input-group">
+                    <label for="qr-dot-color-update">QR Dot Color:</label>
+                    <input type="color" id="qr-dot-color-update" value="#000000">
+                </div>
+                <div class="input-group">
+                    <label for="bg-color-update">Background Color:</label>
+                    <input type="color" id="bg-color-update" value="#ffffff">
+                </div>
+                <div class="input-group">
+                    <label for="dot-style-update">Dot Style:</label>
+                    <select id="dot-style-update">
+                        <option value="square">Square</option>
+                        <option value="rounded">Rounded</option>
+                        <option value="dots">Dots</option>
+                        <option value="classy">Classy</option>
+                        <option value="hexagon">Hexagon</option>
+                        <option value="star">Star</option>
+                        <option value="circle">Circle</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="corner-style-update">Corner Style:</label>
+                    <select id="corner-style-update">
+                        <option value="square">Square</option>
+                        <option value="dot">Dot</option>
+                        <option value="extra-rounded">Extra Rounded</option>
+                        <option value="triangle">Triangle</option>
+                        <option value="diamond">Diamond</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="gradient-update">Apply Gradient:</label>
+                    <select id="gradient-update">
+                        <option value="none">None</option>
+                        <option value="linear">Linear</option>
+                        <option value="radial">Radial</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="logo-update">Add Logo (optional):</label>
+                    <input type="file" id="logo-update" accept="image/*">
+                </div>
                 <!-- Submit Button -->
                 <button class="submit-btn" id="submit-btn-update">Update QR Code</button>
             </div>
@@ -62,7 +109,54 @@
     </div>
     <script src="/js/api-calls.js"></script>
     <script src="/js/qr-gallery.js"></script>
+    <script>
+        // Function to generate QR codes
+        function showQrCodes(qrCodes) {
+            qrCodes.forEach((qrCodeData) => {
+                const qrContainer = document.getElementById(`qr-container-${qrCodeData._id}`);
 
+                if (qrContainer) { // Check if the container exists
+                    const qrCode = new QRCodeStyling({
+                        width: 250,
+                        height: 250,
+                        type: "canvas",
+                        data: `http://localhost:3000/${qrCodeData.code}`, // or any specific data URL
+                        dotsOptions: {
+                            color: qrCodeData.qrDotColor || "#000000",
+                            type: qrCodeData.dotStyle || "square",
+                            gradient: qrCodeData.applyGradient === "linear" ? {
+                                type: "linear",
+                                colorStops: [
+                                    { offset: 0, color: "#ff0000" },
+                                    { offset: 1, color: qrCodeData.qrDotColor || "#000000" }
+                                ]
+                            } : qrCodeData.applyGradient === "radial" ? {
+                                type: "radial",
+                                colorStops: [
+                                    { offset: 0, color: "#ff0000" },
+                                    { offset: 1, color: qrCodeData.qrDotColor || "#000000" }
+                                ]
+                            } : null
+                        },
+                        backgroundOptions: {
+                            color: qrCodeData.backgroundColor || "#ffffff",
+                        },
+                        cornersSquareOptions: {
+                            type: qrCodeData.cornerStyle || "square",
+                        }
+                    });
+
+                    qrCode.append(qrContainer);
+                } else {
+                    console.error(`Container for QR code with ID ${qrCodeData._id} not found.`);
+                }
+            });
+        }
+
+        let getTest = <%- JSON.stringify(qrCodes) %>;
+        console.log(getTest); // Ensure data is logged correctly
+        showQrCodes(getTest); // Call the function
+    </script>
 </body>
 
 </html>

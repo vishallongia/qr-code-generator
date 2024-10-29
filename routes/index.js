@@ -196,14 +196,32 @@ router.post(
     { name: "text-file", maxCount: 1 },
   ]),
   async (req, res) => {
-    const { type } = req.body; // Ensure user_id and type are sent in the request body
+    const {
+      qrName,
+      type,
+      qrDotColor,
+      backgroundColor,
+      dotStyle,
+      cornerStyle,
+      applyGradient,
+      code,
+    } = req.body; // Extract new values from request body
     const user_id = req.user.userId;
     let url;
 
     try {
-      // Set the URL to the desired link (e.g., Facebook)
-      // Link to append to the generated QR code
-
+      if (!qrName) {
+        return res
+          .status(400)
+          .json({ message: "Please enter QR name", type: "error" });
+      }
+      if (!code) {
+        return res.status(500).json({
+          message:
+            "An unexpected error occurred. Please try again in a few moments.",
+          type: "error",
+        });
+      }
       // Handle media and text file uploads
       let mediaFilePath;
       let textFilePath;
@@ -249,28 +267,32 @@ router.post(
       }
 
       // Generate a unique filename for the QR code
-      const qrCodeFilename = `${generateUniqueId()}.png`;
-      const qrCodeImagePath = path.join(
-        __dirname,
-        "../qr_images",
-        qrCodeFilename
-      ); // Full path to save the QR code image
+      // const qrCodeFilename = `${generateUniqueId()}.png`;
+      // const qrCodeImagePath = path.join(
+      //   __dirname,
+      //   "../qr_images",
+      //   qrCodeFilename
+      // ); // Full path to save the QR code image
 
       // Generate the 6-digit alphanumeric code
-      const alphanumericCode = generateAlphanumericCode();
-      const redirectionLink = `${req.protocol}://${req.get(
-        "host"
-      )}/${alphanumericCode}`;
+      // const alphanumericCode = generateAlphanumericCode();
+      // const redirectionLink = `${req.protocol}://${req.get("host")}/${code}`;
       // Generate and save the QR code image
-      await qr.toFile(qrCodeImagePath, redirectionLink); // Use the updated URL for the QR code
+      // await qr.toFile(qrCodeImagePath, redirectionLink); // Use the updated URL for the QR code
 
       // Save QR code data to the database
       const qrCode = new QRCodeData({
         user_id,
         type,
         url,
-        qr_image: `/qr_images/${qrCodeFilename}`, // Store the URL path to access the image
-        code: alphanumericCode, // Add the generated code here
+        // qr_image: `/qr_images/${qrCodeFilename}`, // Store the URL path to access the image
+        code, // Add the generated code here
+        qrName,
+        qrDotColor,
+        backgroundColor,
+        dotStyle,
+        cornerStyle,
+        applyGradient,
       });
       // Save additional media or text file paths if applicable
       if (type === "media") {
@@ -290,7 +312,7 @@ router.post(
           type,
           url,
           qr_image: qrCode.qr_image, // The stored URL path to the QR image
-          code: alphanumericCode, // Return the generated code in the response
+          code, // Return the generated code in the response
         },
       });
     } catch (error) {
@@ -409,7 +431,16 @@ router.put(
     { name: "text-file", maxCount: 1 },
   ]),
   async (req, res) => {
-    const { type, url: newUrl } = req.body; // Get type and URL from request body
+    const {
+      type,
+      url: newUrl,
+      qrName,
+      qrDotColor,
+      backgroundColor,
+      dotStyle,
+      cornerStyle,
+      applyGradient,
+    } = req.body; // Get type and URL from request body
     const qrCodeId = req.params.id;
     const user_id = req.user.userId;
 
@@ -473,7 +504,7 @@ router.put(
       }
 
       // Remove existing files if they were previously uploaded
-      if (existingMediaUrl && qrCode.media_url === null) {
+      if (existingMediaUrl) {
         const existingMediaPath = path.resolve(
           __dirname,
           "..",
@@ -488,7 +519,7 @@ router.put(
           }
         });
       }
-      if (existingTextUrl && qrCode.text_url === null) {
+      if (existingTextUrl) {
         const existingTextPath = path.resolve(
           __dirname,
           "..",
@@ -508,6 +539,13 @@ router.put(
       // const alphanumericCode = generateAlphanumericCode();
       // qrCode.code = alphanumericCode; // Update the code
       qrCode.type = type; // Change the type
+      // Assign new fields to the qrCode object
+      qrCode.qrName = qrName; // Assign qrName
+      qrCode.qrDotColor = qrDotColor; // Assign qrDotColor
+      qrCode.backgroundColor = backgroundColor; // Assign backgroundColor
+      qrCode.dotStyle = dotStyle; // Assign dotStyle
+      qrCode.cornerStyle = cornerStyle; // Assign cornerStyle
+      qrCode.applyGradient = applyGradient; // Assign applyGradient
 
       // Save the updated QR code data (keep the same QR image)
       await qrCode.save();
@@ -522,6 +560,12 @@ router.put(
           url: qrCode.url, // The updated or existing URL
           qr_image: qrCode.qr_image, // Keep the existing QR image (no change)
           code: qrCode.code, // The updated alphanumeric code
+          qrName: qrCode.qrName, // Include the updated qrName
+          qrDotColor: qrCode.qrDotColor, // Include updated qrDotColor
+          backgroundColor: qrCode.backgroundColor, // Include updated backgroundColor
+          dotStyle: qrCode.dotStyle, // Include updated dotStyle
+          cornerStyle: qrCode.cornerStyle, // Include updated cornerStyle
+          applyGradient: qrCode.applyGradient, // Include updated applyGradient
         },
       });
     } catch (error) {

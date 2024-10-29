@@ -40,6 +40,12 @@ body {
   position: relative;
 }
 
+#qr-code {
+  margin-top: 20px;
+  text-align: center;
+  display: none;
+}
+
 .menu-toggle {
   display: none;
   position: fixed;
@@ -135,6 +141,7 @@ input[type="file"] {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -184,19 +191,29 @@ input[type="file"] {
 
 /* Additional styles for QR code submit button */
 .qr-code .submit-btn {
-  background-color: var(--accent-color); /* Set background color */
-  color: var(--primary-text-color); /* Set text color */
-  padding: var(--padding-md) var(--padding-lg); /* Padding */
-  border: none; /* No border */
-  border-radius: var(--border-radius); /* Border radius */
-  font-size: var(--font-size); /* Font size */
-  cursor: pointer; /* Pointer on hover */
-  transition: background-color 0.3s; /* Transition effect */
-  width: 100%; /* Full width */
+  background-color: var(--accent-color);
+  /* Set background color */
+  color: var(--primary-text-color);
+  /* Set text color */
+  padding: var(--padding-md) var(--padding-lg);
+  /* Padding */
+  border: none;
+  /* No border */
+  border-radius: var(--border-radius);
+  /* Border radius */
+  font-size: var(--font-size);
+  /* Font size */
+  cursor: pointer;
+  /* Pointer on hover */
+  transition: background-color 0.3s;
+  /* Transition effect */
+  width: 100%;
+  /* Full width */
 }
 
 .qr-code .submit-btn:hover {
-  background-color: var(--hover-accent-color); /* Hover background color */
+  background-color: var(--hover-accent-color);
+  /* Hover background color */
 }
 
 /* Ensuring the submit button style is consistent across forms */
@@ -215,6 +232,7 @@ input[type="file"] {
 .submit-btn:hover {
   background-color: var(--hover-accent-color);
 }
-#show-section{
+
+#show-section {
   width: 100%;
 }

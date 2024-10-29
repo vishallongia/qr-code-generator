@@ -7,6 +7,7 @@
     <title>QR Code Generator</title>
     <link rel="stylesheet" href="/css/dashboard.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
 </head>
 
 <body>
@@ -32,8 +33,59 @@
                 </select>
             </div>
             <div id="input-fields"></div>
+            <div class="input-group" style="display: none;">
+                <label for="qr-text">Text or URL:</label>
+                <input type="text" id="qr-text" placeholder="Enter text or URL">
+            </div>
+            <div class="input-group" style="display: none;">
+                <label for="qr-code-key">Code</label>
+                <input type="text" id="qr-code-key" placeholder="Code">
+            </div>
+            <div class="input-group">
+                <label for="qr-color">QR Dot Color:</label>
+                <input type="color" id="qr-color" value="#000000">
+            </div>
+            <div class="input-group">
+                <label for="bg-color">Background Color:</label>
+                <input type="color" id="bg-color" value="#ffffff">
+            </div>
+            <div class="input-group">
+                <label for="dot-style">Dot Style:</label>
+                <select id="dot-style">
+                    <option value="square">Square</option>
+                    <option value="rounded">Rounded</option>
+                    <option value="dots">Dots</option>
+                    <option value="classy">Classy</option>
+                    <option value="hexagon">Hexagon</option>
+                    <option value="star">Star</option>
+                    <option value="circle">Circle</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="corner-style">Corner Style:</label>
+                <select id="corner-style">
+                    <option value="square">Square</option>
+                    <option value="dot">Dot</option>
+                    <option value="extra-rounded">Extra Rounded</option>
+                    <option value="triangle">Triangle</option>
+                    <option value="diamond">Diamond</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="gradient">Apply Gradient:</label>
+                <select id="gradient">
+                    <option value="none">None</option>
+                    <option value="linear">Linear</option>
+                    <option value="radial">Radial</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="logo">Add Logo (optional):</label>
+                <input type="file" id="logo" accept="image/*">
+            </div>
             <!-- Submit Button Added Here -->
             <button class="submit-btn">Generate QR Code</button>
+            <div id="qr-code"></div>
         </div>
         <div id="show-section" class="fade-in" style="display: none;">
             <!-- Include the header partial -->

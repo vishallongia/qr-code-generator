@@ -22,11 +22,17 @@ function openModal(qrImage, qrCode) {
 }
 
 // Function to toggle generate-section inside modal
-function showGenerateSection(qr_id) {
+function showGenerateSection(qr) {
   modal.style.display = "block";
   updateSection.style.display = "block";
   viewQr.style.display = "none";
-  qrCodeIdToUpdate = qr_id;
+  qrCodeIdToUpdate = qr._id;
+  document.getElementById("qr-name-update").value = qr.qrName;
+  document.getElementById("bg-color-update").value = qr.backgroundColor;
+  document.getElementById("dot-style-update").value = qr.dotStyle;
+  document.getElementById("corner-style-update").value = qr.cornerStyle;
+  document.getElementById("gradient-update").value = qr.applyGradient;
+  document.getElementById("qr-dot-color-update").value = qr.qrDotColor;
 }
 
 // Function to close the modal
@@ -79,11 +85,24 @@ updateInputFields();
 // Handle form submission
 submitBtnUpdate.addEventListener("click", async (event) => {
   event.preventDefault(); // Prevent default form submission
+  const qrName = document.getElementById("qr-name-update").value;
+  const backgroundColor = document.getElementById("bg-color-update").value;
+  const dotStyle = document.getElementById("dot-style-update").value;
+  const cornerStyle = document.getElementById("corner-style-update").value;
+  const applyGradient = document.getElementById("gradient-update").value;
+  const qrDotColor = document.getElementById("qr-dot-color-update").value;
+
   const formData = new FormData(); // Create a FormData object
   const type = qrTypeUpdate.value; // Get the selected type
 
   // Append type and other form data
   formData.append("type", type);
+  formData.append("qrName", qrName);
+  formData.append("backgroundColor", backgroundColor);
+  formData.append("dotStyle", dotStyle);
+  formData.append("cornerStyle", cornerStyle);
+  formData.append("applyGradient", applyGradient);
+  formData.append("qrDotColor", qrDotColor);
 
   if (type === "media") {
     const mediaFileInput = document.getElementById("media-file-update");
