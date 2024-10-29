@@ -120,7 +120,7 @@
                         width: 250,
                         height: 250,
                         type: "canvas",
-                        data: `http://localhost:3000/${qrCodeData.code}`, // or any specific data URL
+                        data: `${window.location.protocol}//${window.location.host}/${qrCodeData.code}`, // or any specific data URL
                         dotsOptions: {
                             color: qrCodeData.qrDotColor || "#000000",
                             type: qrCodeData.dotStyle || "square",
