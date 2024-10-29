@@ -33,6 +33,35 @@ function showGenerateSection(qr) {
   document.getElementById("corner-style-update").value = qr.cornerStyle;
   document.getElementById("gradient-update").value = qr.applyGradient;
   document.getElementById("qr-dot-color-update").value = qr.qrDotColor;
+  const filePath = `${window.location.protocol}//${window.location.host}/${qr.media_url}`; // Update with your file path
+
+  // Fetch the file and store it as a Blob
+  fetch(filePath)
+    .then((response) => response.blob())
+    .then((blob) => {
+      // Store the Blob for later upload without displaying it
+      const inputElement = document.getElementById("media-file-update");
+      const fileName = qr.media_url;
+
+      // Handle file path and name extraction
+      const normalizedFileName = fileName
+        .replace(/uploads\\/g, "uploads\\\\")
+        .split("\\")
+        .pop();
+      // Create a new File object from the Blob
+      const file = new File([blob], normalizedFileName, { type: "image/png" });
+
+      // Create a DataTransfer object to simulate file selection
+      const fileList = new DataTransfer();
+      fileList.items.add(file);
+
+      // Populate the input with the files
+      inputElement.files = fileList.files; // Set the files property
+
+      // Optional: If you want to keep track of the blob URL, you can store it
+      inputElement.dataset.fileBlob = URL.createObjectURL(blob);
+    })
+    .catch((error) => console.error("Error fetching image:", error));
 }
 
 // Function to close the modal
