@@ -89,7 +89,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
+  margin: 40px 0;
 }
 
 h1 {
@@ -112,7 +113,8 @@ label {
 
 select,
 input[type="text"],
-input[type="file"],textarea {
+input[type="file"],
+textarea {
   width: 100%;
   padding: var(--padding-md);
   border: 1px solid var(--border-color);
