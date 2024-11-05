@@ -140,7 +140,7 @@ submitBtnUpdate.addEventListener("click", async (event) => {
   formData.append("qrDotColor", qrDotColor);
 
   if (type === "media") {
-    const mediaFileInput = document.getElementById("media");
+    const mediaFileInput = document.getElementById("media-file");
     if (mediaFileInput.files.length > 0) {
       formData.append("media-file", mediaFileInput.files[0]);
     } else {
