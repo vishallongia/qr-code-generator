@@ -27,7 +27,7 @@ const qrCodeSchema = new mongoose.Schema(
     media_url: {
       type: String, // URL to the media file if applicable
     },
-    text_url: {
+    text: {
       type: String, // URL to the text file if applicable
     },
     code: {

@@ -205,9 +205,12 @@ router.post(
       cornerStyle,
       applyGradient,
       code,
+      url,
+      text,
     } = req.body; // Extract new values from request body
     const user_id = req.user.userId;
-    let url;
+    // const url = req.body.url || "";
+    // const text = req.body.text || "";
 
     try {
       if (!qrName) {
@@ -224,7 +227,7 @@ router.post(
       }
       // Handle media and text file uploads
       let mediaFilePath;
-      let textFilePath;
+      // let textFilePath;
 
       if (type === "media") {
         // Check if media file is attached
@@ -242,13 +245,13 @@ router.post(
         //   mediaFilePath + path.extname(mediaFileOriginalName); // Path to uploaded media file
       } else if (type === "text") {
         // Check if text file is attached
-        if (!req.files["text-file"]) {
+        if (!text) {
           return res
             .status(400)
-            .json({ message: "Text file not attached", type: "error" });
+            .json({ message: "Text is missing", type: "error" });
         }
         // Assuming req.files["media-file"] is correctly populated by your upload middleware
-        textFilePath = req.files["text-file"][0].path;
+        // textFilePath = req.files["text-file"][0].path;
         // const textFileOriginalName = req.files["text-file"][0].originalname;
 
         // Append the extension directly
@@ -285,7 +288,7 @@ router.post(
         user_id,
         type,
         url,
-        // qr_image: `/qr_images/${qrCodeFilename}`, // Store the URL path to access the image
+        text,
         code, // Add the generated code here
         qrName,
         qrDotColor,
@@ -297,9 +300,10 @@ router.post(
       // Save additional media or text file paths if applicable
       if (type === "media") {
         qrCode.media_url = mediaFilePath; // Save media file path
-      } else if (type === "text") {
-        qrCode.text_url = textFilePath; // Save text file path
       }
+      // else if (type === "text") {
+      //   qrCode.text_url = textFilePath; // Save text file path
+      // }
 
       await qrCode.save();
 
@@ -378,36 +382,36 @@ router.delete("/delete/:id", authMiddleware, async (req, res) => {
     }
 
     // Delete the associated text file if it exists
-    if (existingTextUrl) {
-      const textFilePath = path.resolve(__dirname, "..", existingTextUrl);
-      console.log(`Attempting to delete text file at: ${textFilePath}`);
-      fs.unlink(textFilePath, (err) => {
-        if (err) {
-          console.error("Error deleting text file:", err);
-        } else {
-          console.log("Text file deleted successfully.");
-        }
-      });
-    }
+    // if (existingTextUrl) {
+    //   const textFilePath = path.resolve(__dirname, "..", existingTextUrl);
+    //   console.log(`Attempting to delete text file at: ${textFilePath}`);
+    //   fs.unlink(textFilePath, (err) => {
+    //     if (err) {
+    //       console.error("Error deleting text file:", err);
+    //     } else {
+    //       console.log("Text file deleted successfully.");
+    //     }
+    //   });
+    // }
 
     // Check if the QR image file exists before attempting to delete it
-    if (existingQrImage) {
-      const qrImageFilePath = path.join(__dirname, "..", existingQrImage); // Adjusted to the correct path
-      console.log(`Attempting to delete QR image file at: ${qrImageFilePath}`);
-      fs.access(qrImageFilePath, fs.constants.F_OK, (err) => {
-        if (err) {
-          console.error("QR image file does not exist:", err);
-        } else {
-          fs.unlink(qrImageFilePath, (err) => {
-            if (err) {
-              console.error("Error deleting QR image file:", err);
-            } else {
-              console.log("QR image file deleted successfully.");
-            }
-          });
-        }
-      });
-    }
+    // if (existingQrImage) {
+    //   const qrImageFilePath = path.join(__dirname, "..", existingQrImage); // Adjusted to the correct path
+    //   console.log(`Attempting to delete QR image file at: ${qrImageFilePath}`);
+    //   fs.access(qrImageFilePath, fs.constants.F_OK, (err) => {
+    //     if (err) {
+    //       console.error("QR image file does not exist:", err);
+    //     } else {
+    //       fs.unlink(qrImageFilePath, (err) => {
+    //         if (err) {
+    //           console.error("Error deleting QR image file:", err);
+    //         } else {
+    //           console.log("QR image file deleted successfully.");
+    //         }
+    //       });
+    //     }
+    //   });
+    // }
 
     // Render success message after successful deletion
     res.status(200).json({
@@ -434,6 +438,7 @@ router.put(
     const {
       type,
       url: newUrl,
+      text,
       qrName,
       qrDotColor,
       backgroundColor,
@@ -466,7 +471,7 @@ router.put(
 
       // Store existing file paths for deletion later if necessary
       const existingMediaUrl = qrCode.media_url;
-      const existingTextUrl = qrCode.text_url;
+      // const existingTextUrl = qrCode.text_url;
 
       // Handle updates based on the type
       if (type === "url") {
@@ -481,12 +486,12 @@ router.put(
         qrCode.media_url = null;
         qrCode.text_url = null;
       } else if (type === "text") {
-        if (!req.files["text-file"]) {
+        if (!text) {
           return res
             .status(400)
-            .json({ message: "Text file not attached", type: "error" });
+            .json({ message: "Text is missing", type: "error" });
         }
-        qrCode.text_url = req.files["text-file"][0].path; // Update text file path
+        // qrCode.text_url = req.files["text-file"][0].path; // Update text file path
 
         // Clear media_url if type is text
         qrCode.media_url = null;
@@ -522,21 +527,21 @@ router.put(
           }
         });
       }
-      if (existingTextUrl) {
-        const existingTextPath = path.resolve(
-          __dirname,
-          "..",
-          existingMediaUrl
-        ); // Resolve the path
-        console.log(`Attempting to delete text file at: ${existingTextPath}`); // Log the path
-        fs.unlink(existingTextPath, (err) => {
-          if (err) {
-            console.error("Error deleting existing text file:", err);
-          } else {
-            console.log("Successfully deleted text file.");
-          }
-        });
-      }
+      // if (existingTextUrl) {
+      //   const existingTextPath = path.resolve(
+      //     __dirname,
+      //     "..",
+      //     existingMediaUrl
+      //   ); // Resolve the path
+      //   console.log(`Attempting to delete text file at: ${existingTextPath}`); // Log the path
+      //   fs.unlink(existingTextPath, (err) => {
+      //     if (err) {
+      //       console.error("Error deleting existing text file:", err);
+      //     } else {
+      //       console.log("Successfully deleted text file.");
+      //     }
+      //   });
+      // }
 
       // // Generate a new 6-digit alphanumeric code
       // const alphanumericCode = generateAlphanumericCode();
@@ -549,6 +554,7 @@ router.put(
       qrCode.dotStyle = dotStyle; // Assign dotStyle
       qrCode.cornerStyle = cornerStyle; // Assign cornerStyle
       qrCode.applyGradient = applyGradient; // Assign applyGradient
+      qrCode.text = text;
 
       // Save the updated QR code data (keep the same QR image)
       await qrCode.save();
@@ -603,6 +609,18 @@ router.get("/:alphanumericCode([a-zA-Z0-9]{6})", async (req, res) => {
       return res.redirect(
         `${req.protocol}://${req.get("host")}/${codeData.media_url}`
       ); // Assuming media_url is a relative path (e.g., uploads/)
+    } else if (codeData.type === "text") {
+      // Send plain HTML response to display the text content
+      return res.send(`
+        <html>
+          <head>
+            <title>Text Display</title>
+          </head>
+          <body>
+            <p>${codeData.text}</p>
+          </body>
+        </html>
+      `);
     } else {
       // If the type is not valid, return an error
       return res.status(400).render("error", {

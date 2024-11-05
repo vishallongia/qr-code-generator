@@ -51,11 +51,11 @@ submitBtn.addEventListener("click", async (event) => {
       return; // Stop further processing if file is not attached
     }
   } else if (type === "text") {
-    const textFileInput = document.getElementById("text-file");
-    if (textFileInput.files.length > 0) {
-      formData.append("text-file", textFileInput.files[0]); // Append the text file
+    const text = document.getElementById("text-file");
+    if (text.value) {
+      formData.append("text", text.value); // Append the text file
     } else {
-      showToast("Please attach a text file.", "error");
+      showToast("Please provide text.", "error");
       return;
     }
   } else if (type === "url") {
@@ -148,9 +148,9 @@ submitBtnUpdate.addEventListener("click", async (event) => {
       return;
     }
   } else if (type === "text") {
-    const textFileInput = document.getElementById("text-file");
-    if (textFileInput.files.length > 0) {
-      formData.append("text-file", textFileInput.files[0]);
+    const text = document.getElementById("text-file");
+    if (text.value) {
+      formData.append("text", text.value);
     } else {
       showToast("Please attach a text file.", "error");
       return;

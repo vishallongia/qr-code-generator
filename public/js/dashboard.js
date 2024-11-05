@@ -43,7 +43,7 @@ function updateInputFields() {
       input = createInput("file", "media-file", "Select Media File");
       break;
     case "text":
-      input = createInput("file", "text-file", "Select Text File");
+      input = createInput("textarea", "text-file", "Enter Text");
       break;
     case "url":
       input = createInput("text", "url", "Enter URL");
@@ -62,8 +62,13 @@ function createInput(type, id, labelText) {
   label.htmlFor = id;
   label.textContent = labelText;
 
-  const input = document.createElement("input");
-  input.type = type;
+  let input;
+  if (type === "textarea") {
+    input = document.createElement("textarea"); // Create a textarea element
+  } else {
+    input = document.createElement("input"); // Create an input element
+    input.type = type;
+  }
   input.id = id;
 
   div.appendChild(label);
