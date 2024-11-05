@@ -104,12 +104,20 @@ const qrCode = new QRCodeStyling({
 
 qrCode.append(document.getElementById("qr-code"));
 
-function generateQRCodeFe() {
-  const alphanumericCode = generateAlphanumericCode();
+function generateQRCodeFe(isUpdate = false) {
+  let alphanumericCode;
+  let qrText;
+  if (isUpdate) {
+    alphanumericCode = document.getElementById("qr-code-key").value;
+    qrText = `${window.location.protocol}//${window.location.host}/${alphanumericCode}`;
+    document.getElementById("qr-text").value = `${qrText}`;
+  } else {
+    alphanumericCode = generateAlphanumericCode();
 
-  // Generate the QR text URL dynamically
-  const qrText = `${window.location.protocol}//${window.location.host}/${alphanumericCode}`;
-  document.getElementById("qr-text").value = `${qrText}`;
+    // Generate the QR text URL dynamically
+    qrText = `${window.location.protocol}//${window.location.host}/${alphanumericCode}`;
+    document.getElementById("qr-text").value = `${qrText}`;
+  }
 
   document.getElementById("qr-code-key").value = alphanumericCode;
   const qrColor = document.getElementById("qr-color").value;

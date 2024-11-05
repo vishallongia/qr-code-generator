@@ -441,12 +441,15 @@ router.put(
       cornerStyle,
       applyGradient,
     } = req.body; // Get type and URL from request body
-    const qrCodeId = req.params.id;
+    const qrCodeAlphanumeric = req.params.id;
     const user_id = req.user.userId;
 
     try {
       // Fetch the existing QR code by ID
-      const qrCode = await QRCodeData.findById(qrCodeId);
+      const qrCode = await QRCodeData.findOne({
+        code: qrCodeAlphanumeric,
+        user_id,
+      });
 
       if (!qrCode) {
         return res

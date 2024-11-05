@@ -6,7 +6,7 @@ const qrTypeUpdate = document.getElementById("qr-type-update");
 const inputFieldsUpdate = document.getElementById("input-fields-update");
 const updateSection = document.getElementById("update-section");
 const viewQr = document.getElementById("view-qr");
-const submitBtnUpdate = document.getElementById("submit-btn-update");
+// const submitBtnUpdate = document.getElementById("submit-btn-update");
 let qrCodeIdToUpdate; // Declare a variable to store the QR Code ID
 function openModal(qrImage, qrCode) {
   // Set the image and title
@@ -111,75 +111,75 @@ function createInput(type, id, labelText) {
 
 updateInputFields();
 
-// Handle form submission
-submitBtnUpdate.addEventListener("click", async (event) => {
-  event.preventDefault(); // Prevent default form submission
-  const qrName = document.getElementById("qr-name-update").value;
-  const backgroundColor = document.getElementById("bg-color-update").value;
-  const dotStyle = document.getElementById("dot-style-update").value;
-  const cornerStyle = document.getElementById("corner-style-update").value;
-  const applyGradient = document.getElementById("gradient-update").value;
-  const qrDotColor = document.getElementById("qr-dot-color-update").value;
+// // Handle form submission
+// submitBtnUpdate.addEventListener("click", async (event) => {
+//   event.preventDefault(); // Prevent default form submission
+//   const qrName = document.getElementById("qr-name-update").value;
+//   const backgroundColor = document.getElementById("bg-color-update").value;
+//   const dotStyle = document.getElementById("dot-style-update").value;
+//   const cornerStyle = document.getElementById("corner-style-update").value;
+//   const applyGradient = document.getElementById("gradient-update").value;
+//   const qrDotColor = document.getElementById("qr-dot-color-update").value;
 
-  const formData = new FormData(); // Create a FormData object
-  const type = qrTypeUpdate.value; // Get the selected type
+//   const formData = new FormData(); // Create a FormData object
+//   const type = qrTypeUpdate.value; // Get the selected type
 
-  // Append type and other form data
-  formData.append("type", type);
-  formData.append("qrName", qrName);
-  formData.append("backgroundColor", backgroundColor);
-  formData.append("dotStyle", dotStyle);
-  formData.append("cornerStyle", cornerStyle);
-  formData.append("applyGradient", applyGradient);
-  formData.append("qrDotColor", qrDotColor);
+//   // Append type and other form data
+//   formData.append("type", type);
+//   formData.append("qrName", qrName);
+//   formData.append("backgroundColor", backgroundColor);
+//   formData.append("dotStyle", dotStyle);
+//   formData.append("cornerStyle", cornerStyle);
+//   formData.append("applyGradient", applyGradient);
+//   formData.append("qrDotColor", qrDotColor);
 
-  if (type === "media") {
-    const mediaFileInput = document.getElementById("media-file-update");
-    if (mediaFileInput.files.length > 0) {
-      formData.append("media-file", mediaFileInput.files[0]);
-    } else {
-      showToast("Please attach a media file.", "error");
-      return;
-    }
-  } else if (type === "text") {
-    const textFileInput = document.getElementById("text-file-update");
-    if (textFileInput.files.length > 0) {
-      formData.append("text-file", textFileInput.files[0]);
-    } else {
-      showToast("Please attach a text file.", "error");
-      return;
-    }
-  } else if (type === "url") {
-    const urlInput = document.getElementById("url-update");
-    if (urlInput.value) {
-      formData.append("url", urlInput.value);
-    } else {
-      showToast("Please provide a URL.", "error");
-      return;
-    }
-  }
+//   if (type === "media") {
+//     const mediaFileInput = document.getElementById("media-file-update");
+//     if (mediaFileInput.files.length > 0) {
+//       formData.append("media-file", mediaFileInput.files[0]);
+//     } else {
+//       showToast("Please attach a media file.", "error");
+//       return;
+//     }
+//   } else if (type === "text") {
+//     const textFileInput = document.getElementById("text-file-update");
+//     if (textFileInput.files.length > 0) {
+//       formData.append("text-file", textFileInput.files[0]);
+//     } else {
+//       showToast("Please attach a text file.", "error");
+//       return;
+//     }
+//   } else if (type === "url") {
+//     const urlInput = document.getElementById("url-update");
+//     if (urlInput.value) {
+//       formData.append("url", urlInput.value);
+//     } else {
+//       showToast("Please provide a URL.", "error");
+//       return;
+//     }
+//   }
 
-  try {
-    // Get the QR Code ID dynamically (you may need to replace `qrCodeId` with the actual value)
-    const qrCodeId = qrCodeIdToUpdate; // Replace with actual QR code ID
+//   try {
+//     // Get the QR Code ID dynamically (you may need to replace `qrCodeId` with the actual value)
+//     const qrCodeId = qrCodeIdToUpdate; // Replace with actual QR code ID
 
-    // Send a PUT request to update the QR code
-    const response = await fetch(`/update/${qrCodeId}`, {
-      method: "PUT",
-      body: formData,
-    });
+//     // Send a PUT request to update the QR code
+//     const response = await fetch(`/update/${qrCodeId}`, {
+//       method: "PUT",
+//       body: formData,
+//     });
 
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result.message || "Error updating QR code.");
-    }
+//     const result = await response.json();
+//     if (!response.ok) {
+//       throw new Error(result.message || "Error updating QR code.");
+//     }
 
-    showToast(result.message, "success");
-    window.location.reload();
-  } catch (error) {
-    showToast(error.message || "Error updating QR code.", "error");
-  }
-});
+//     showToast(result.message, "success");
+//     window.location.reload();
+//   } catch (error) {
+//     showToast(error.message || "Error updating QR code.", "error");
+//   }
+// });
 
 function downloadQRCode(imageUrl) {
   const a = document.createElement("a"); // Create an anchor element
