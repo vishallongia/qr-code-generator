@@ -258,7 +258,6 @@ router.post(
         // textFilePathWithExt = textFilePath + path.extname(textFileOriginalName); // Path to uploaded media file
       } else if (type === "url") {
         // Validate URL
-        url = req.body.url;
 
         if (!url) {
           return res
