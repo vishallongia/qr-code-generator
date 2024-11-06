@@ -1,8 +1,11 @@
 const qrDataType = document.getElementById("qr-type");
-const submitBtn = document.querySelector(".submit-btn"); // Get the submit button
+const submitBtnGenerate = document.getElementById("submit-btn-generate"); // Get the submit button
 const submitBtnUpdate = document.getElementById("submit-btn-update");
+const loader = document.getElementById("loader"); // Get the loader element
+const generatedSection = document.getElementById("generate-section");
+const downloadQrButton = document.getElementById("downloadQRCode");
 
-submitBtn.addEventListener("click", async (event) => {
+submitBtnGenerate.addEventListener("click", async (event) => {
   event.preventDefault(); // Prevent the default form submission
 
   generateQRCodeFe();
@@ -82,6 +85,8 @@ submitBtn.addEventListener("click", async (event) => {
 async function generateQRCode(formData) {
   try {
     document.querySelector(".submit-btn").disabled = true;
+    generatedSection.style.display = "none";
+    loader.style.display = "block";
 
     const response = await fetch("/generate", {
       method: "POST",
@@ -94,13 +99,18 @@ async function generateQRCode(formData) {
       throw new Error(result.message || "QR Code generation failed!");
     } else {
       document.getElementById("qr-code").style.display = "block"; // Show the element
-      document.querySelector(".submit-btn").disabled = false;
-      document.querySelector(".submit-btn").style.display = "none";
-      document.getElementById("submit-btn-update").style.display = "block";
+      submitBtnGenerate.disabled = false;
+      submitBtnGenerate.style.display = "none";
+      submitBtnUpdate.style.display = "block";
+      downloadQrButton.style.display = "block";
+      loader.style.display = "none";
+      generatedSection.style.display = "block";
     }
 
     return result; // Return the result for further handling
   } catch (error) {
+    loader.style.display = "none";
+    generatedSection.style.display = "block";
     console.error("Error:", error);
     document.querySelector(".submit-btn").disabled = false;
     throw error; // Propagate the error
@@ -168,6 +178,8 @@ submitBtnUpdate.addEventListener("click", async (event) => {
   try {
     // Get the QR Code ID dynamically (you may need to replace `qrCodeId` with the actual value)
     const qrCodeId = code; // Replace with actual QR code ID
+    generatedSection.style.display = "none";
+    loader.style.display = "block";
 
     // Send a PUT request to update the QR code
     const response = await fetch(`/update/${qrCodeId}`, {
@@ -179,10 +191,14 @@ submitBtnUpdate.addEventListener("click", async (event) => {
     if (!response.ok) {
       throw new Error(result.message || "Error updating QR code.");
     }
+    loader.style.display = "none";
+    generatedSection.style.display = "block";
 
     showToast(result.message, "success");
     // window.location.reload();
   } catch (error) {
+    loader.style.display = "none";
+    generatedSection.style.display = "block";
     showToast(error.message || "Error updating QR code.", "error");
   }
 });

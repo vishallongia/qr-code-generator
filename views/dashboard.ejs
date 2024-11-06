@@ -11,6 +11,7 @@
 </head>
 
 <body>
+
     <button class="menu-toggle">☰</button>
     <div class="side-menu">
         <button class="menu-close">×</button>
@@ -18,80 +19,82 @@
         <div class="menu-item" data-section="show">Show My QR</div>
     </div>
     <div class="main-content">
-        <!-- <h1 class="fade-in">QR Code Generator</h1> -->
-        <div id="generate-section" class="fade-in">
-            <div class="input-group">
-                <label for="qr-name">QR Name:</label>
-                <input type="text" id="qr-name" placeholder="Enter QR Name">
+        <%- include('../components/loader') %>
+            <!-- <h1 class="fade-in">QR Code Generator</h1> -->
+            <div id="generate-section" class="fade-in">
+                <div class="input-group">
+                    <label for="qr-name">QR Name:</label>
+                    <input type="text" id="qr-name" placeholder="Enter QR Name">
+                </div>
+                <div class="input-group">
+                    <label for="qr-type">Select QR Type:</label>
+                    <select id="qr-type">
+                        <option value="media">Media</option>
+                        <option value="text">Text</option>
+                        <option value="url">URL</option>
+                    </select>
+                </div>
+                <div id="input-fields"></div>
+                <div class="input-group" style="display: none;">
+                    <label for="qr-text">Text or URL:</label>
+                    <input type="text" id="qr-text" placeholder="Enter text or URL">
+                </div>
+                <div class="input-group" style="display: none;">
+                    <label for="qr-code-key">Code</label>
+                    <input type="text" id="qr-code-key" placeholder="Code">
+                </div>
+                <div class="input-group">
+                    <label for="qr-color">QR Dot Color:</label>
+                    <input type="color" id="qr-color" value="#000000">
+                </div>
+                <div class="input-group">
+                    <label for="bg-color">Background Color:</label>
+                    <input type="color" id="bg-color" value="#ffffff">
+                </div>
+                <div class="input-group">
+                    <label for="dot-style">Dot Style:</label>
+                    <select id="dot-style">
+                        <option value="square">Square</option>
+                        <option value="rounded">Rounded</option>
+                        <option value="dots">Dots</option>
+                        <option value="classy">Classy</option>
+                        <option value="hexagon">Hexagon</option>
+                        <option value="star">Star</option>
+                        <option value="circle">Circle</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="corner-style">Corner Style:</label>
+                    <select id="corner-style">
+                        <option value="square">Square</option>
+                        <option value="dot">Dot</option>
+                        <option value="extra-rounded">Extra Rounded</option>
+                        <option value="triangle">Triangle</option>
+                        <option value="diamond">Diamond</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="gradient">Apply Gradient:</label>
+                    <select id="gradient">
+                        <option value="none">None</option>
+                        <option value="linear">Linear</option>
+                        <option value="radial">Radial</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="logo">Add Logo (optional):</label>
+                    <input type="file" id="logo" accept="image/*">
+                </div>
+                <!-- Submit Button Added Here -->
+                <button class="submit-btn" id="submit-btn-generate">Generate QR Code</button>
+                <button class="submit-btn" id="submit-btn-update">Modify QR Code</button>
+                <button class="submit-btn" id="downloadQRCode" onclick="downloadQRCode()">Download QR Code</button>
+                <div id="qr-code"></div>
             </div>
-            <div class="input-group">
-                <label for="qr-type">Select QR Type:</label>
-                <select id="qr-type">
-                    <option value="media">Media</option>
-                    <option value="text">Text</option>
-                    <option value="url">URL</option>
-                </select>
+            <div id="show-section" class="fade-in" style="display: none;">
+                <!-- Include the header partial -->
+                <%- include('../components/qr-gallery'); -%>
             </div>
-            <div id="input-fields"></div>
-            <div class="input-group" style="display: none;">
-                <label for="qr-text">Text or URL:</label>
-                <input type="text" id="qr-text" placeholder="Enter text or URL">
-            </div>
-            <div class="input-group" style="display: none;">
-                <label for="qr-code-key">Code</label>
-                <input type="text" id="qr-code-key" placeholder="Code">
-            </div>
-            <div class="input-group">
-                <label for="qr-color">QR Dot Color:</label>
-                <input type="color" id="qr-color" value="#000000">
-            </div>
-            <div class="input-group">
-                <label for="bg-color">Background Color:</label>
-                <input type="color" id="bg-color" value="#ffffff">
-            </div>
-            <div class="input-group">
-                <label for="dot-style">Dot Style:</label>
-                <select id="dot-style">
-                    <option value="square">Square</option>
-                    <option value="rounded">Rounded</option>
-                    <option value="dots">Dots</option>
-                    <option value="classy">Classy</option>
-                    <option value="hexagon">Hexagon</option>
-                    <option value="star">Star</option>
-                    <option value="circle">Circle</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label for="corner-style">Corner Style:</label>
-                <select id="corner-style">
-                    <option value="square">Square</option>
-                    <option value="dot">Dot</option>
-                    <option value="extra-rounded">Extra Rounded</option>
-                    <option value="triangle">Triangle</option>
-                    <option value="diamond">Diamond</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label for="gradient">Apply Gradient:</label>
-                <select id="gradient">
-                    <option value="none">None</option>
-                    <option value="linear">Linear</option>
-                    <option value="radial">Radial</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label for="logo">Add Logo (optional):</label>
-                <input type="file" id="logo" accept="image/*">
-            </div>
-            <!-- Submit Button Added Here -->
-            <button class="submit-btn">Generate QR Code</button>
-            <button class="submit-btn" id="submit-btn-update">Modify QR Code</button>
-            <div id="qr-code"></div>
-        </div>
-        <div id="show-section" class="fade-in" style="display: none;">
-            <!-- Include the header partial -->
-            <%- include('../components/qr-gallery'); -%>
-        </div>
     </div>
     <button class="logout-btn fade-in">Logout</button>
     <script src="/js/dashboard.js"></script>
