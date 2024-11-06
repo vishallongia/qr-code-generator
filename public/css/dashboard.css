@@ -239,8 +239,39 @@ textarea {
 
 #show-section {
   width: 100%;
+  margin-top: 10px;
 }
 
 #submit-btn-update {
+  display: none;
+}
+
+
+/* Base canvas styling */
+canvas {
+  width: 100%;
+  /* Set to full width to be responsive */
+  height: auto;
+  /* Maintain aspect ratio */
+  max-width: 250px;
+  /* Default max width */
+}
+
+/* Breakpoints to adjust canvas max-width */
+@media (min-width: 768px) {
+  canvas {
+    max-width: 200px;
+    /* Medium screens (e.g., tablet) */
+  }
+}
+
+@media (min-width: 1024px) {
+  canvas {
+    max-width: 250px;
+    /* Large screens (e.g., desktop) */
+  }
+}
+
+#downloadQRCode {
   display: none;
 }
