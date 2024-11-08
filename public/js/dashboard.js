@@ -234,36 +234,51 @@ function showGenerateSection(qr) {
   document.getElementById("gradient").value = qr.applyGradient;
   document.getElementById("qr-color").value = qr.qrDotColor;
   document.getElementById("qr-type").value = qr.type;
+  document.getElementById("qr-code-key").value = qr.code;
   updateInputFields();
-  const filePath = `${window.location.protocol}//${window.location.host}/${qr.media_url}`; // Update with your file path
+
+  generateQRCodeFe(true);
 
   // Fetch the file and store it as a Blob
-  fetch(filePath)
-    .then((response) => response.blob())
-    .then((blob) => {
-      // Store the Blob for later upload without displaying it
-      const inputElement = document.getElementById("media-file-update");
-      const fileName = qr.media_url;
+  if (document.getElementById("qr-type").value === "media") {
+    const filePath = `${window.location.protocol}//${window.location.host}/${qr.media_url}`; // Update with your file path
 
-      // Handle file path and name extraction
-      const normalizedFileName = fileName
-        .replace(/uploads\\/g, "uploads\\\\")
-        .split("\\")
-        .pop();
-      // Create a new File object from the Blob
-      const file = new File([blob], normalizedFileName, { type: "image/png" });
+    fetch(filePath)
+      .then((response) => response.blob())
+      .then((blob) => {
+        // Store the Blob for later upload without displaying it
+        const inputElement = document.getElementById("media-file");
+        const fileName = qr.media_url;
 
-      // Create a DataTransfer object to simulate file selection
-      const fileList = new DataTransfer();
-      fileList.items.add(file);
+        // Handle file path and name extraction
+        const normalizedFileName = fileName
+          .replace(/uploads\\/g, "uploads\\\\")
+          .split("\\")
+          .pop();
+        // Create a new File object from the Blob
+        const file = new File([blob], normalizedFileName, {
+          type: "image/png",
+        });
 
-      // Populate the input with the files
-      inputElement.files = fileList.files; // Set the files property
+        // Create a DataTransfer object to simulate file selection
+        const fileList = new DataTransfer();
+        fileList.items.add(file);
 
-      // Optional: If you want to keep track of the blob URL, you can store it
-      inputElement.dataset.fileBlob = URL.createObjectURL(blob);
-    })
-    .catch((error) => console.error("Error fetching image:", error));
+        // Populate the input with the files
+        inputElement.files = fileList.files; // Set the files property
+
+        // Optional: If you want to keep track of the blob URL, you can store it
+        inputElement.dataset.fileBlob = URL.createObjectURL(blob);
+      })
+      .catch((error) => console.error("Error fetching image:", error));
+  }
+  if (document.getElementById("qr-type").value === "url") {
+    document.getElementById("url").value = qr.url;
+  }
+  if (document.getElementById("qr-type").value === "text") {
+    document.getElementById("text-file").value = qr.text;
+  }
+  document.getElementById("submit-btn-update").style.display = "block";
+  document.getElementById("submit-btn-generate").style.display = "none";
+  document.getElementById("qr-code").style.display = "block";
 }
-
-
