@@ -162,20 +162,62 @@ router.post("/register", async (req, res) => {
 router.get("/dashboard", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.userId; // Assuming the auth middleware adds the user object to the request
-    // Fetch QR code data for the logged-in user
-    const qrCodes = await QRCodeData.find({ user_id: userId });
+    const { updateqr } = req.query; // Get the updateqr query parameter, if any
 
+    // Check if specific QR code ID is requested for updating
+    if (updateqr) {
+      // Fetch the specific QR code by ID and ensure it belongs to the logged-in user
+      const qrCode = await QRCodeData.findOne({
+        _id: updateqr,
+        user_id: userId,
+      });
+
+      if (qrCode) {
+        // If QR code is found, render dashboard with this QR code for editing
+        res.render("dashboard", {
+          qrCode: qrCode, // Pass the specific QR code in an array for consistent handling
+          message: "Edit your QR code.",
+          activeSection: "generate", // Set active section to 'update' for specific UI handling
+        });
+      }
+    } else {
+      // QR codes found for the user
+      res.render("dashboard", {
+        message: "Welcome! Here are your QR codes.",
+        activeSection: "generate",
+        qrCode : null
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching QR code data:", error);
+    res.status(500).render("dashboard", {
+      message: "An error occurred while fetching your QR codes.",
+      type: "error", // Send type as 'error' to trigger toast notification
+    });
+  }
+});
+
+// Home route
+router.get("/myqr", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.userId; // Assuming the auth middleware adds the user object to the request
+    // Fetch QR code data for the logged-in user
+    const qrCodes = await QRCodeData.find({ user_id: userId }).sort({
+      createdAt: -1,
+    });
     if (qrCodes.length > 0) {
       // QR codes found for the user
       res.render("dashboard", {
         qrCodes, // Pass the QR codes to the template
         message: "Welcome! Here are your QR codes.",
+        activeSection: "show",
       });
     } else {
       // No QR codes found for the user
       res.render("dashboard", {
         qrCodes: [], // Pass an empty array for QR codes
         message: "No QR codes found.",
+        activeSection: "show",
       });
     }
   } catch (error) {
