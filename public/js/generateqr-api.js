@@ -202,3 +202,5 @@ submitBtnUpdate.addEventListener("click", async (event) => {
     showToast(error.message || "Error updating QR code.", "error");
   }
 });
+
+

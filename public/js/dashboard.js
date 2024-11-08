@@ -1,3 +1,4 @@
+// Select DOM elements
 const menuToggle = document.querySelector(".menu-toggle");
 const menuClose = document.querySelector(".menu-close");
 const sideMenu = document.querySelector(".side-menu");
@@ -7,6 +8,7 @@ const showSection = document.getElementById("show-section");
 const qrType = document.getElementById("qr-type");
 const inputFields = document.getElementById("input-fields");
 
+// Toggle the menu open and close
 menuToggle.addEventListener("click", () => {
   sideMenu.classList.add("active");
 });
@@ -15,23 +17,48 @@ menuClose.addEventListener("click", () => {
   sideMenu.classList.remove("active");
 });
 
+// Set active tab based on localStorage on page load
+document.addEventListener("DOMContentLoaded", () => {
+  const activeTab = localStorage.getItem("activeTab");
+
+  if (activeTab) {
+    // Find the corresponding menu item and section based on the saved tab
+    menuItems.forEach((item) => {
+      item.classList.remove("active");
+      if (item.dataset.section === activeTab) {
+        item.classList.add("active");
+      }
+    });
+  }
+});
+
+// Event listener for menu items
 menuItems.forEach((item) => {
   item.addEventListener("click", () => {
+    // Remove active class from all menu items
     menuItems.forEach((i) => i.classList.remove("active"));
+
+    // Add active class to the clicked item
     item.classList.add("active");
+
+    // Save the active tab in localStorage
+    localStorage.setItem("activeTab", item.dataset.section);
+
+    // Show or hide sections based on selected tab
     if (item.dataset.section === "generate") {
-      generateSection.style.display = "block";
-      showSection.style.display = "none";
+      window.location.href = "/dashboard";
     } else {
-      generateSection.style.display = "none";
-      showSection.style.display = "block";
+      window.location.href = "/myqr";
     }
+
+    // Close side menu on small screens
     if (window.innerWidth <= 768) {
       sideMenu.classList.remove("active");
     }
   });
 });
 
+// QR Type change listener to update input fields
 qrType.addEventListener("change", updateInputFields);
 
 function updateInputFields() {
@@ -64,9 +91,9 @@ function createInput(type, id, labelText) {
 
   let input;
   if (type === "textarea") {
-    input = document.createElement("textarea"); // Create a textarea element
+    input = document.createElement("textarea");
   } else {
-    input = document.createElement("input"); // Create an input element
+    input = document.createElement("input");
     input.type = type;
   }
   input.id = id;
@@ -79,8 +106,7 @@ function createInput(type, id, labelText) {
 
 updateInputFields();
 
-//Frontend Qr Genration
-
+// QR Code generation functions
 function generateAlphanumericCode(length = 6) {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let code = "";
@@ -118,8 +144,6 @@ function generateQRCodeFe(isUpdate = false) {
     document.getElementById("qr-text").value = `${qrText}`;
   } else {
     alphanumericCode = generateAlphanumericCode();
-
-    // Generate the QR text URL dynamically
     qrText = `${window.location.protocol}//${window.location.host}/${alphanumericCode}`;
     document.getElementById("qr-text").value = `${qrText}`;
   }
@@ -132,7 +156,6 @@ function generateQRCodeFe(isUpdate = false) {
   const gradient = document.getElementById("gradient").value;
   const logoFile = document.getElementById("logo").files[0];
 
-  // Gradient settings
   let dotColor = { color: qrColor };
   if (gradient === "linear") {
     dotColor = {
@@ -156,7 +179,6 @@ function generateQRCodeFe(isUpdate = false) {
     };
   }
 
-  // Load the image for logo if uploaded
   let logoUrl = "";
   if (logoFile) {
     const reader = new FileReader();
@@ -191,7 +213,7 @@ function updateQRCodeFe(
     cornersSquareOptions: {
       type: cornerStyle,
     },
-    image: logoUrl ? logoUrl : "", // Use logo image if provided
+    image: logoUrl || "",
     imageOptions: {
       crossOrigin: "anonymous",
       margin: 10,
@@ -202,3 +224,46 @@ function updateQRCodeFe(
 function downloadQRCode() {
   qrCode.download({ name: "qr-code", extension: "png" });
 }
+
+// Function to toggle generate-section inside modal
+function showGenerateSection(qr) {
+  document.getElementById("qr-name").value = qr.qrName;
+  document.getElementById("bg-color").value = qr.backgroundColor;
+  document.getElementById("dot-style").value = qr.dotStyle;
+  document.getElementById("corner-style").value = qr.cornerStyle;
+  document.getElementById("gradient").value = qr.applyGradient;
+  document.getElementById("qr-color").value = qr.qrDotColor;
+  document.getElementById("qr-type").value = qr.type;
+  updateInputFields();
+  const filePath = `${window.location.protocol}//${window.location.host}/${qr.media_url}`; // Update with your file path
+
+  // Fetch the file and store it as a Blob
+  fetch(filePath)
+    .then((response) => response.blob())
+    .then((blob) => {
+      // Store the Blob for later upload without displaying it
+      const inputElement = document.getElementById("media-file-update");
+      const fileName = qr.media_url;
+
+      // Handle file path and name extraction
+      const normalizedFileName = fileName
+        .replace(/uploads\\/g, "uploads\\\\")
+        .split("\\")
+        .pop();
+      // Create a new File object from the Blob
+      const file = new File([blob], normalizedFileName, { type: "image/png" });
+
+      // Create a DataTransfer object to simulate file selection
+      const fileList = new DataTransfer();
+      fileList.items.add(file);
+
+      // Populate the input with the files
+      inputElement.files = fileList.files; // Set the files property
+
+      // Optional: If you want to keep track of the blob URL, you can store it
+      inputElement.dataset.fileBlob = URL.createObjectURL(blob);
+    })
+    .catch((error) => console.error("Error fetching image:", error));
+}
+
+
