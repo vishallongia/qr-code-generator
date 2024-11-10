@@ -181,13 +181,13 @@ updateInputFields();
 //   }
 // });
 
-function downloadQRCode(imageUrl) {
-  const a = document.createElement("a"); // Create an anchor element
-  a.href = imageUrl; // Set the URL of the image
-  a.download = ""; // Use an empty string to download the image with its original name
+// function downloadQRCode(imageUrl) {
+//   const a = document.createElement("a"); // Create an anchor element
+//   a.href = imageUrl; // Set the URL of the image
+//   a.download = ""; // Use an empty string to download the image with its original name
 
-  // Append the anchor to the document body
-  document.body.appendChild(a);
-  a.click(); // Trigger the click event to start the download
-  document.body.removeChild(a); // Remove the anchor from the document
-}
+//   // Append the anchor to the document body
+//   document.body.appendChild(a);
+//   a.click(); // Trigger the click event to start the download
+//   document.body.removeChild(a); // Remove the anchor from the document
+// }

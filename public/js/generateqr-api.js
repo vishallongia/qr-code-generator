@@ -136,6 +136,7 @@ submitBtnUpdate.addEventListener("click", async (event) => {
   const applyGradient = document.getElementById("gradient").value;
   // const Logo = document.getElementById("logo").files[0];
   const code = document.getElementById("qr-code-key").value;
+  const logoFileInput = document.getElementById("logo"); //logo file input
 
   const formData = new FormData(); // Create a FormData object
   const type = qrDataType.value; // Get the selected type
@@ -148,6 +149,7 @@ submitBtnUpdate.addEventListener("click", async (event) => {
   formData.append("cornerStyle", cornerStyle);
   formData.append("applyGradient", applyGradient);
   formData.append("qrDotColor", qrDotColor);
+  formData.append("logo", logoFileInput.files[0]);
 
   if (type === "media") {
     const mediaFileInput = document.getElementById("media-file");
@@ -202,5 +204,3 @@ submitBtnUpdate.addEventListener("click", async (event) => {
     showToast(error.message || "Error updating QR code.", "error");
   }
 });
-
-

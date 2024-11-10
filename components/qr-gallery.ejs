@@ -24,7 +24,7 @@
                                 <i class="fas fa-edit"></i>
                             </a>
                         </button>
-                        <button class="btn" title="Download" onclick="downloadQRCode('<%= qrCode._id %>')">
+                        <button class="btn" title="Download" onclick="downloadQRCodeShowed('<%= qrCode._id %>')">
                             <i class="fas fa-download"></i>
                         </button>
                         <button class="btn" title="Delete" onclick="deleteQRCode('<%= qrCode._id %>')">
@@ -112,17 +112,18 @@
     <script src="/js/api-calls.js"></script>
     <script src="/js/qr-gallery.js"></script>
     <script>
-        // Function to generate QR codes
+        const qrCodesMap = {};
+
         function showQrCodes(qrCodes) {
             qrCodes.forEach((qrCodeData) => {
                 const qrContainer = document.getElementById(`qr-container-${qrCodeData._id}`);
 
-                if (qrContainer) { // Check if the container exists
+                if (qrContainer) {
                     const qrCode = new QRCodeStyling({
                         width: 250,
                         height: 250,
                         type: "canvas",
-                        data: `${window.location.protocol}//${window.location.host}/${qrCodeData.code}`, // or any specific data URL
+                        data: `${window.location.protocol}//${window.location.host}/${qrCodeData.code}`,
                         dotsOptions: {
                             color: qrCodeData.qrDotColor || "#000000",
                             type: qrCodeData.dotStyle || "square",
@@ -149,14 +150,27 @@
                     });
 
                     qrCode.append(qrContainer);
+
+                    // Store each QRCodeStyling instance in a dictionary for downloading later
+                    qrCodesMap[qrCodeData._id] = qrCode;
                 } else {
                     console.error(`Container for QR code with ID ${qrCodeData._id} not found.`);
                 }
             });
         }
 
+        function downloadQRCodeShowed(qrCodeId) {
+            const qrCode = qrCodesMap[qrCodeId];
+            if (qrCode) {
+                qrCode.download({ name: `qr-code-${qrCodeId}`, extension: "png" });
+            } else {
+                console.error(`QR Code with ID ${qrCodeId} not found.`);
+            }
+        }
+
+        // Get QR codes data and generate QR codes
         let getTest = <%- JSON.stringify(qrCodes) %>;
-        showQrCodes(getTest); // Call the function
+        showQrCodes(getTest);
     </script>
 </body>
 

@@ -221,9 +221,7 @@ function updateQRCodeFe(
   });
 }
 
-function downloadQRCode() {
-  qrCode.download({ name: "qr-code", extension: "png" });
-}
+
 
 // Function to toggle generate-section inside modal
 function showGenerateSection(qr) {
@@ -235,9 +233,43 @@ function showGenerateSection(qr) {
   document.getElementById("qr-color").value = qr.qrDotColor;
   document.getElementById("qr-type").value = qr.type;
   document.getElementById("qr-code-key").value = qr.code;
+  const logo = qr.logo
   updateInputFields();
 
   generateQRCodeFe(true);
+
+
+  // Fetch the logo file if available and store it as a Blob
+if (logo) {
+  const logoPath = `${window.location.protocol}//${window.location.host}/${logo}`; // Update with your logo path
+
+  fetch(logoPath)
+    .then((response) => response.blob())
+    .then((blob) => {
+      const logoInputElement = document.getElementById("logo");
+      const logoFileName = logo;
+
+      // Normalize and extract the logo file name
+      const normalizedLogoFileName = logoFileName
+        .replace(/uploads\\/g, "uploads\\\\")
+        .split("\\")
+        .pop();
+
+      // Create a new File object from the Blob for the logo
+      const logoFile = new File([blob], normalizedLogoFileName, {
+        type: "image/png",
+      });
+
+      // Simulate file selection for the logo
+      const logoFileList = new DataTransfer();
+      logoFileList.items.add(logoFile);
+      logoInputElement.files = logoFileList.files;
+
+      // Optional: Store the Blob URL if needed
+      logoInputElement.dataset.logoBlob = URL.createObjectURL(blob);
+    })
+    .catch((error) => console.error("Error fetching logo:", error));
+}
 
   // Fetch the file and store it as a Blob
   if (document.getElementById("qr-type").value === "media") {
@@ -281,4 +313,8 @@ function showGenerateSection(qr) {
   document.getElementById("submit-btn-update").style.display = "block";
   document.getElementById("submit-btn-generate").style.display = "none";
   document.getElementById("qr-code").style.display = "block";
+}
+
+function downloadQRCode() {
+  qrCode.download({ name: "qr-code", extension: "png" });
 }

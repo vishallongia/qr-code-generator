@@ -54,7 +54,7 @@ const qrCodeSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    Logo: {
+    logo: {
       type: String,
     },
   },

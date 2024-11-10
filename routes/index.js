@@ -185,7 +185,7 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
       res.render("dashboard", {
         message: "Welcome! Here are your QR codes.",
         activeSection: "generate",
-        qrCode : null
+        qrCode: null,
       });
     }
   } catch (error) {
@@ -236,6 +236,7 @@ router.post(
   upload.fields([
     { name: "media-file", maxCount: 1 },
     { name: "text-file", maxCount: 1 },
+    { name: "logo", maxCount: 1 },
   ]),
   async (req, res) => {
     const {
@@ -254,6 +255,10 @@ router.post(
     // const url = req.body.url || "";
     // const text = req.body.text || "";
 
+    // Handle media and text file uploads
+    let mediaFilePath;
+    let logoPath;
+
     try {
       if (!qrName) {
         return res
@@ -267,9 +272,6 @@ router.post(
           type: "error",
         });
       }
-      // Handle media and text file uploads
-      let mediaFilePath;
-      // let textFilePath;
 
       if (type === "media") {
         // Check if media file is attached
@@ -310,6 +312,24 @@ router.post(
         return res.status(400).json({ message: "Invalid type", type: "error" });
       }
 
+      // Check if logo file exists and save it if provided
+      if (req.files["logo"]) {
+        const logoFile = req.files["logo"][0];
+        const logoFolderPath = path.join(__dirname, "../logos");
+
+        // Ensure the logos folder exists
+        if (!fs.existsSync(logoFolderPath)) {
+          fs.mkdirSync(logoFolderPath);
+        }
+
+        // Set the logo path to save in database
+        logoPath = path.join("logos", logoFile.filename);
+        const logoFullPath = path.join(logoFolderPath, logoFile.filename);
+
+        // Move the uploaded logo to the 'logos' folder
+        fs.renameSync(logoFile.path, logoFullPath);
+      }
+
       // Generate a unique filename for the QR code
       // const qrCodeFilename = `${generateUniqueId()}.png`;
       // const qrCodeImagePath = path.join(
@@ -337,6 +357,7 @@ router.post(
         dotStyle,
         cornerStyle,
         applyGradient,
+        logo: logoPath, // Save logo path if provided
       });
       // Save additional media or text file paths if applicable
       if (type === "media") {
@@ -405,8 +426,7 @@ router.delete("/delete/:id", authMiddleware, async (req, res) => {
 
     // Store the file paths for media and text files
     const existingMediaUrl = qrCode.media_url;
-    const existingTextUrl = qrCode.text_url;
-    const existingQrImage = qrCode.qr_image;
+    const existingLogoUrl = qrCode.logo;
 
     // Delete the associated media file if it exists
     if (existingMediaUrl) {
@@ -418,6 +438,18 @@ router.delete("/delete/:id", authMiddleware, async (req, res) => {
           console.error("Error deleting media file:", err);
         } else {
           console.log("Media file deleted successfully.");
+        }
+      });
+    }
+
+    // Delete the associated logo file if it exists
+    if (existingLogoUrl) {
+      const logoFilePath = path.resolve(__dirname, "..", existingLogoUrl);
+      fs.unlink(logoFilePath, (err) => {
+        if (err) {
+          console.error("Error deleting logo file:", err);
+        } else {
+          console.log("Logo file deleted successfully.");
         }
       });
     }
@@ -474,6 +506,7 @@ router.put(
   upload.fields([
     { name: "media-file", maxCount: 1 },
     { name: "text-file", maxCount: 1 },
+    { name: "logo", maxCount: 1 },
   ]),
   async (req, res) => {
     const {
@@ -497,6 +530,10 @@ router.put(
         user_id,
       });
 
+      // Store existing file paths for deletion later if necessary
+      const existingMediaUrl = qrCode.media_url;
+      const existingLogoUrl = qrCode.logo;
+
       if (!qrCode) {
         return res
           .status(404)
@@ -509,10 +546,6 @@ router.put(
           .status(403)
           .json({ message: "Unauthorized access", type: "error" });
       }
-
-      // Store existing file paths for deletion later if necessary
-      const existingMediaUrl = qrCode.media_url;
-      // const existingTextUrl = qrCode.text_url;
 
       // Handle updates based on the type
       if (type === "url") {
@@ -568,6 +601,35 @@ router.put(
           }
         });
       }
+
+      // Delete existing logo file if applicable
+      if (existingLogoUrl) {
+        const existingLogoPath = path.resolve(__dirname, "..", existingLogoUrl);
+        fs.unlink(existingLogoPath, (err) => {
+          if (err) {
+            console.error("Error deleting existing logo file:", err);
+          } else {
+            console.log("Successfully deleted logo file.");
+          }
+        });
+      }
+      // Move new logo to 'logos' folder if a new logo file is provided
+      if (req.files["logo"]) {
+        const newLogoPath = path.join("logos", req.files["logo"][0].filename);
+        const logoTempPath = req.files["logo"][0].path;
+        qrCode.logo = newLogoPath;
+
+        // Move logo to the 'logos' directory
+        fs.rename(logoTempPath, newLogoPath, (err) => {
+          if (err) {
+            console.error("Error moving logo file to 'logos' folder:", err);
+            return res.status(500).json({ message: "Error saving new logo." });
+          } else {
+            qrCode.logo = newLogoPath; // Update the logo path in the QR code data
+            console.log("Logo file successfully moved to 'logos' folder.");
+          }
+        });
+      }
       // if (existingTextUrl) {
       //   const existingTextPath = path.resolve(
       //     __dirname,
@@ -616,6 +678,7 @@ router.put(
           dotStyle: qrCode.dotStyle, // Include updated dotStyle
           cornerStyle: qrCode.cornerStyle, // Include updated cornerStyle
           applyGradient: qrCode.applyGradient, // Include updated applyGradient
+          logo: qrCode.logo, // Include updated logo path
         },
       });
     } catch (error) {

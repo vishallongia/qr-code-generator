@@ -17,8 +17,8 @@ app.use(cookieParser());
 // Serve static files from the public directory
 app.use(express.static("public"));
 // app.use(express.static("qr_images"));
-app.use("/qr_images", express.static(path.join(__dirname, "qr_images")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/logos", express.static(path.join(__dirname, "logos")));
 
 // Set EJS as the view engine
 app.set("view engine", "ejs");
