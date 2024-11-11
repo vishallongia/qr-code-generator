@@ -54,10 +54,10 @@ submitBtnGenerate.addEventListener("click", async (event) => {
       const file = mediaFileInput.files[0];
 
       // Validate the file size
-      if (file.size > maxSize) {
-        showToast("Media File size should not exceed 100 MB.", "error");
-        return; // Stop further processing if file is too large
-      }
+      // if (file.size > maxSize) {
+      //   showToast("Media File size should not exceed 100 MB.", "error");
+      //   return; // Stop further processing if file is too large
+      // }
 
       formData.append("media-file", file); // Append the media file if validation passes
     } else {
