@@ -4,6 +4,7 @@ const submitBtnUpdate = document.getElementById("submit-btn-update");
 const loader = document.getElementById("loader"); // Get the loader element
 const generatedSection = document.getElementById("generate-section");
 const downloadQrButton = document.getElementById("downloadQRCode");
+const maxSize = 100 * 1024 * 1024; // Max Size of media file 100 MB in bytes
 
 submitBtnGenerate.addEventListener("click", async (event) => {
   event.preventDefault(); // Prevent the default form submission
@@ -47,11 +48,21 @@ submitBtnGenerate.addEventListener("click", async (event) => {
   // Append the input file or URL based on the selected QR type
   if (type === "media") {
     const mediaFileInput = document.getElementById("media-file");
+
+    // Check if a file is attached
     if (mediaFileInput.files.length > 0) {
-      formData.append("media-file", mediaFileInput.files[0]); // Append the media file
+      const file = mediaFileInput.files[0];
+
+      // Validate the file size
+      if (file.size > maxSize) {
+        showToast("Media File size should not exceed 100 MB.", "error");
+        return; // Stop further processing if file is too large
+      }
+
+      formData.append("media-file", file); // Append the media file if validation passes
     } else {
       showToast("Please attach a media file.", "error");
-      return; // Stop further processing if file is not attached
+      return; // Stop further processing if no file is attached
     }
   } else if (type === "text") {
     const text = document.getElementById("text-file");
@@ -153,11 +164,22 @@ submitBtnUpdate.addEventListener("click", async (event) => {
 
   if (type === "media") {
     const mediaFileInput = document.getElementById("media-file");
+
+    // Check if a file is attached
     if (mediaFileInput.files.length > 0) {
-      formData.append("media-file", mediaFileInput.files[0]);
+      const file = mediaFileInput.files[0];
+
+      // Validate the file size
+      if (file.size > maxSize) {
+        showToast("File size should not exceed 100 MB.", "error");
+        return; // Stop further processing if the file is too large
+      }
+
+      // Append the media file if validation passes
+      formData.append("media-file", file);
     } else {
       showToast("Please attach a media file.", "error");
-      return;
+      return; // Stop further processing if no file is attached
     }
   } else if (type === "text") {
     const text = document.getElementById("text-file");

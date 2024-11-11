@@ -27,6 +27,8 @@ const storage = multer.diskStorage({
 // Initialize multer with the defined storage
 const upload = multer({ storage });
 
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // Max Size of media file 100 MB in bytes
+
 // Function to generate a unique ID
 function generateUniqueId() {
   return Math.random().toString(36).substring(2, 8) + Date.now().toString(36);
@@ -281,12 +283,16 @@ router.post(
             .json({ message: "Media file not attached", type: "error" });
         }
         // Assuming req.files["media-file"] is correctly populated by your upload middleware
-        mediaFilePath = req.files["media-file"][0].path;
-        // const mediaFileOriginalName = req.files["media-file"][0].originalname;
+        const mediaFile = req.files["media-file"][0];
 
-        // Append the extension directly
-        // mediaFilePathWithExt =
-        //   mediaFilePath + path.extname(mediaFileOriginalName); // Path to uploaded media file
+        // Validate media file size
+        if (mediaFile.size > MAX_FILE_SIZE) {
+          return res.status(400).json({
+            message: "Media file size should not exceed 100 MB",
+            type: "error",
+          });
+        }
+        mediaFilePath = mediaFile.path; // Path to uploaded media file
       } else if (type === "text") {
         // Check if text file is attached
         if (!text) {
@@ -576,7 +582,18 @@ router.put(
             .status(400)
             .json({ message: "Media file not attached", type: "error" });
         }
-        qrCode.media_url = req.files["media-file"][0].path; // Update media file path
+
+        // Assuming req.files["media-file"] is correctly populated by your upload middleware
+        const mediaFile = req.files["media-file"][0];
+
+        // Validate media file size
+        if (mediaFile.size > MAX_FILE_SIZE) {
+          return res.status(400).json({
+            message: "Media file size should not exceed 100 MB",
+            type: "error",
+          });
+        }
+        qrCode.media_url = mediaFile.path; // Update media file path
 
         // Clear text_url if type is media
         qrCode.text_url = null;
