@@ -9,7 +9,7 @@ const QRCodeData = require("../models/QRCODEDATA"); // Adjust the path as necess
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // Max Size of media file 100 MB in bytes
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // Max Size of media file 50 MB in bytes
 // Set up multer for file uploads with custom storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -35,7 +35,7 @@ const multerErrorHandler = (err, req, res, next) => {
   if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
     return res
       .status(400)
-      .json({ message: "File size should not exceed 100 MB", type: "error" });
+      .json({ message: "File size should not exceed 50 MB", type: "error" });
   } else if (err) {
     console.error(err);
     return res
@@ -289,7 +289,7 @@ router.post(
         // Validate media file size
         if (mediaFile.size > MAX_FILE_SIZE) {
           return res.status(400).json({
-            message: "Media file size should not exceed 100 MB",
+            message: "Media file size should not exceed 50 MB",
             type: "error",
           });
         }
@@ -538,7 +538,7 @@ router.put(
         // Validate media file size
         if (mediaFile.size > MAX_FILE_SIZE) {
           return res.status(400).json({
-            message: "Media file size should not exceed 100 MB",
+            message: "Media file size should not exceed 50 MB",
             type: "error",
           });
         }

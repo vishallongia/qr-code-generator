@@ -4,7 +4,7 @@ const submitBtnUpdate = document.getElementById("submit-btn-update");
 const loader = document.getElementById("loader"); // Get the loader element
 const generatedSection = document.getElementById("generate-section");
 const downloadQrButton = document.getElementById("downloadQRCode");
-const maxSize = 100 * 1024 * 1024; // Max Size of media file 100 MB in bytes
+const maxSize = 50 * 1024 * 1024; // Max Size of media file 50 MB in bytes
 
 submitBtnGenerate.addEventListener("click", async (event) => {
   event.preventDefault(); // Prevent the default form submission
@@ -55,7 +55,7 @@ submitBtnGenerate.addEventListener("click", async (event) => {
 
       // Validate the file size
       if (file.size > maxSize) {
-        showToast("Media File size should not exceed 100 MB.", "error");
+        showToast("Media File size should not exceed 50 MB.", "error");
         return; // Stop further processing if file is too large
       }
 
@@ -75,7 +75,12 @@ submitBtnGenerate.addEventListener("click", async (event) => {
   } else if (type === "url") {
     const urlInput = document.getElementById("url");
     if (urlInput.value) {
-      formData.append("url", urlInput.value); // Append the URL
+      // Check if the URL does NOT start with 'http://' or 'https://'
+      if (!/^https?:\/\//i.test(urlInput.value)) {
+        showToast("URL must begin with 'http://' or 'https://'.", "error");
+        return;
+      }
+      formData.append("url", urlInput.value); // Append the URL if it has the correct format
     } else {
       showToast("Please provide a URL.", "error");
       return;
@@ -171,7 +176,7 @@ submitBtnUpdate.addEventListener("click", async (event) => {
 
       // Validate the file size
       if (file.size > maxSize) {
-        showToast("File size should not exceed 100 MB.", "error");
+        showToast("File size should not exceed 50 MB.", "error");
         return; // Stop further processing if the file is too large
       }
 
@@ -192,7 +197,12 @@ submitBtnUpdate.addEventListener("click", async (event) => {
   } else if (type === "url") {
     const urlInput = document.getElementById("url");
     if (urlInput.value) {
-      formData.append("url", urlInput.value);
+      // Check if the URL does NOT start with 'http://' or 'https://'
+      if (!/^https?:\/\//i.test(urlInput.value)) {
+        showToast("URL must begin with 'http://' or 'https://'.", "error");
+        return;
+      }
+      formData.append("url", urlInput.value); // Append the URL if it has the correct format
     } else {
       showToast("Please provide a URL.", "error");
       return;
