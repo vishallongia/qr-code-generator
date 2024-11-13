@@ -6,10 +6,10 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middleware/auth"); // Import the middleware
 const QRCodeData = require("../models/QRCODEDATA"); // Adjust the path as necessary
-const qr = require("qrcode");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // Max Size of media file 50 MB in bytes
 // Set up multer for file uploads with custom storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -24,20 +24,30 @@ const storage = multer.diskStorage({
   },
 });
 
-// Initialize multer with the defined storage
-const upload = multer({ storage });
+// Initialize multer with custom storage and file size limit
+const upload = multer({
+  storage,
+  limits: { fileSize: MAX_FILE_SIZE }, // Set file size limit
+});
+
+// Error handler middleware to catch multer errors
+const multerErrorHandler = (err, req, res, next) => {
+  if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
+    return res
+      .status(400)
+      .json({ message: "File size should not exceed 50 MB", type: "error" });
+  } else if (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "File upload error", type: "error" });
+  }
+  next();
+};
 
 // Function to generate a unique ID
 function generateUniqueId() {
   return Math.random().toString(36).substring(2, 8) + Date.now().toString(36);
-}
-function generateAlphanumericCode(length = 6) {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let code = "";
-  for (let i = 0; i < length; i++) {
-    code += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return code;
 }
 
 //All Routes
@@ -106,14 +116,6 @@ router.post("/login", async (req, res) => {
 // Registration Route
 router.post("/register", async (req, res) => {
   const { fullName, email, password, confirmPassword } = req.body;
-
-  // Validate passwords
-  // if (password !== confirmPassword) {
-  //   return res.status(400).json({
-  //     message: "Passwords do not match",
-  //     type: "error",
-  //   });
-  // }
 
   try {
     // Check if user already exists
@@ -238,6 +240,7 @@ router.post(
     { name: "text-file", maxCount: 1 },
     { name: "logo", maxCount: 1 },
   ]),
+  multerErrorHandler,
   async (req, res) => {
     const {
       qrName,
@@ -281,12 +284,16 @@ router.post(
             .json({ message: "Media file not attached", type: "error" });
         }
         // Assuming req.files["media-file"] is correctly populated by your upload middleware
-        mediaFilePath = req.files["media-file"][0].path;
-        // const mediaFileOriginalName = req.files["media-file"][0].originalname;
+        const mediaFile = req.files["media-file"][0];
 
-        // Append the extension directly
-        // mediaFilePathWithExt =
-        //   mediaFilePath + path.extname(mediaFileOriginalName); // Path to uploaded media file
+        // Validate media file size
+        if (mediaFile.size > MAX_FILE_SIZE) {
+          return res.status(400).json({
+            message: "Media file size should not exceed 50 MB",
+            type: "error",
+          });
+        }
+        mediaFilePath = mediaFile.path; // Path to uploaded media file
       } else if (type === "text") {
         // Check if text file is attached
         if (!text) {
@@ -294,12 +301,6 @@ router.post(
             .status(400)
             .json({ message: "Text is missing", type: "error" });
         }
-        // Assuming req.files["media-file"] is correctly populated by your upload middleware
-        // textFilePath = req.files["text-file"][0].path;
-        // const textFileOriginalName = req.files["text-file"][0].originalname;
-
-        // Append the extension directly
-        // textFilePathWithExt = textFilePath + path.extname(textFileOriginalName); // Path to uploaded media file
       } else if (type === "url") {
         // Validate URL
 
@@ -307,6 +308,13 @@ router.post(
           return res
             .status(400)
             .json({ message: "Url is missing", type: "error" });
+        }
+        // Ensure the URL starts with 'http://' or 'https://'
+        if (!/^https?:\/\//i.test(url)) {
+          return res.status(400).json({
+            message: "URL must begin with 'http://' or 'https://'.",
+            type: "error",
+          });
         }
       } else {
         return res.status(400).json({ message: "Invalid type", type: "error" });
@@ -330,21 +338,6 @@ router.post(
         fs.renameSync(logoFile.path, logoFullPath);
       }
 
-      // Generate a unique filename for the QR code
-      // const qrCodeFilename = `${generateUniqueId()}.png`;
-      // const qrCodeImagePath = path.join(
-      //   __dirname,
-      //   "../qr_images",
-      //   qrCodeFilename
-      // ); // Full path to save the QR code image
-
-      // Generate the 6-digit alphanumeric code
-      // const alphanumericCode = generateAlphanumericCode();
-      // const redirectionLink = `${req.protocol}://${req.get("host")}/${code}`;
-      // Generate and save the QR code image
-      // await qr.toFile(qrCodeImagePath, redirectionLink); // Use the updated URL for the QR code
-
-      // Save QR code data to the database
       const qrCode = new QRCodeData({
         user_id,
         type,
@@ -454,38 +447,6 @@ router.delete("/delete/:id", authMiddleware, async (req, res) => {
       });
     }
 
-    // Delete the associated text file if it exists
-    // if (existingTextUrl) {
-    //   const textFilePath = path.resolve(__dirname, "..", existingTextUrl);
-    //   console.log(`Attempting to delete text file at: ${textFilePath}`);
-    //   fs.unlink(textFilePath, (err) => {
-    //     if (err) {
-    //       console.error("Error deleting text file:", err);
-    //     } else {
-    //       console.log("Text file deleted successfully.");
-    //     }
-    //   });
-    // }
-
-    // Check if the QR image file exists before attempting to delete it
-    // if (existingQrImage) {
-    //   const qrImageFilePath = path.join(__dirname, "..", existingQrImage); // Adjusted to the correct path
-    //   console.log(`Attempting to delete QR image file at: ${qrImageFilePath}`);
-    //   fs.access(qrImageFilePath, fs.constants.F_OK, (err) => {
-    //     if (err) {
-    //       console.error("QR image file does not exist:", err);
-    //     } else {
-    //       fs.unlink(qrImageFilePath, (err) => {
-    //         if (err) {
-    //           console.error("Error deleting QR image file:", err);
-    //         } else {
-    //           console.log("QR image file deleted successfully.");
-    //         }
-    //       });
-    //     }
-    //   });
-    // }
-
     // Render success message after successful deletion
     res.status(200).json({
       message: "QR Code and associated files deleted successfully!",
@@ -508,6 +469,7 @@ router.put(
     { name: "text-file", maxCount: 1 },
     { name: "logo", maxCount: 1 },
   ]),
+  multerErrorHandler,
   async (req, res) => {
     const {
       type,
@@ -554,6 +516,14 @@ router.put(
             .status(400)
             .json({ message: "Url is missing", type: "error" });
         }
+
+        // Ensure the URL starts with 'http://' or 'https://'
+        if (!/^https?:\/\//i.test(newUrl)) {
+          return res.status(400).json({
+            message: "URL must begin with 'http://' or 'https://'.",
+            type: "error",
+          });
+        }
         qrCode.url = newUrl; // Update the URL in the database
 
         // Clear media_url and text_url if type is url
@@ -576,7 +546,18 @@ router.put(
             .status(400)
             .json({ message: "Media file not attached", type: "error" });
         }
-        qrCode.media_url = req.files["media-file"][0].path; // Update media file path
+
+        // Assuming req.files["media-file"] is correctly populated by your upload middleware
+        const mediaFile = req.files["media-file"][0];
+
+        // Validate media file size
+        if (mediaFile.size > MAX_FILE_SIZE) {
+          return res.status(400).json({
+            message: "Media file size should not exceed 50 MB",
+            type: "error",
+          });
+        }
+        qrCode.media_url = mediaFile.path; // Update media file path
 
         // Clear text_url if type is media
         qrCode.text_url = null;
@@ -629,26 +610,10 @@ router.put(
             console.log("Logo file successfully moved to 'logos' folder.");
           }
         });
+      } else {
+        // Set logo to null if no new logo file is provided
+        qrCode.logo = null;
       }
-      // if (existingTextUrl) {
-      //   const existingTextPath = path.resolve(
-      //     __dirname,
-      //     "..",
-      //     existingMediaUrl
-      //   ); // Resolve the path
-      //   console.log(`Attempting to delete text file at: ${existingTextPath}`); // Log the path
-      //   fs.unlink(existingTextPath, (err) => {
-      //     if (err) {
-      //       console.error("Error deleting existing text file:", err);
-      //     } else {
-      //       console.log("Successfully deleted text file.");
-      //     }
-      //   });
-      // }
-
-      // // Generate a new 6-digit alphanumeric code
-      // const alphanumericCode = generateAlphanumericCode();
-      // qrCode.code = alphanumericCode; // Update the code
       qrCode.type = type; // Change the type
       // Assign new fields to the qrCode object
       qrCode.qrName = qrName; // Assign qrName

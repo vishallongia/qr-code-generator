@@ -19,7 +19,7 @@
                     </div>
                     <div class="qr-placeholder" id="qr-container-<%= qrCode._id %>"></div>
                     <div class="button-group">
-                        <button class="btn" title="Update" >
+                        <button class="btn" title="Update">
                             <a href="/dashboard?updateqr=<%= qrCode._id %>" class="btn" title="Update">
                                 <i class="fas fa-edit"></i>
                             </a>
@@ -117,6 +117,12 @@
         function showQrCodes(qrCodes) {
             qrCodes.forEach((qrCodeData) => {
                 const qrContainer = document.getElementById(`qr-container-${qrCodeData._id}`);
+                let logo = qrCodeData.logo;
+                let logoUrl;
+                if (logo) {
+                    logoUrl = `${window.location.protocol}//${window.location.host}/${logo}`;
+                }
+                console.log(logoUrl);
 
                 if (qrContainer) {
                     const qrCode = new QRCodeStyling({
@@ -146,6 +152,11 @@
                         },
                         cornersSquareOptions: {
                             type: qrCodeData.cornerStyle || "square",
+                        },
+                        image: logoUrl ? logoUrl : "",  // Use logo image if provided
+                        imageOptions: {
+                            crossOrigin: "anonymous",
+                            margin: 10
                         }
                     });
 
