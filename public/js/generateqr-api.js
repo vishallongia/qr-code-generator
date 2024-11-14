@@ -75,7 +75,7 @@ submitBtnGenerate.addEventListener("click", async (event) => {
   } else if (type === "url") {
     const urlInput = document.getElementById("url");
     if (urlInput.value) {
-      // Check if the URL does NOT start with 'http://' or 'https://'
+      //Check if the URL does NOT start with 'http://' or 'https://'
       if (!/^https?:\/\//i.test(urlInput.value)) {
         showToast("URL must begin with 'http://' or 'https://'.", "error");
         return;

@@ -309,6 +309,13 @@ router.post(
             .status(400)
             .json({ message: "Url is missing", type: "error" });
         }
+        // Ensure the URL starts with 'http://' or 'https://'
+        if (!/^https?:\/\//i.test(url)) {
+          return res.status(400).json({
+            message: "URL must begin with 'http://' or 'https://'.",
+            type: "error",
+          });
+        }
       } else {
         return res.status(400).json({ message: "Invalid type", type: "error" });
       }
@@ -509,6 +516,14 @@ router.put(
             .status(400)
             .json({ message: "Url is missing", type: "error" });
         }
+
+        // Ensure the URL starts with 'http://' or 'https://'
+        if (!/^https?:\/\//i.test(newUrl)) {
+          return res.status(400).json({
+            message: "URL must begin with 'http://' or 'https://'.",
+            type: "error",
+          });
+        }
         qrCode.url = newUrl; // Update the URL in the database
 
         // Clear media_url and text_url if type is url
@@ -595,6 +610,9 @@ router.put(
             console.log("Logo file successfully moved to 'logos' folder.");
           }
         });
+      } else {
+        // Set logo to null if no new logo file is provided
+        qrCode.logo = null;
       }
       qrCode.type = type; // Change the type
       // Assign new fields to the qrCode object
