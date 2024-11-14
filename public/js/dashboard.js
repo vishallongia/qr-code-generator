@@ -317,7 +317,10 @@ function showGenerateSection(qr) {
 }
 
 function downloadQRCode() {
-  qrCode.download({ name: "qr-code", extension: "png" });
+  qrCode.download({
+    name: "qr-code",
+    extension: "png",
+    width: 16000,
+    height: 16000,
+  }); // High resolution download
 }
-
-

@@ -173,7 +173,7 @@
         function downloadQRCodeShowed(qrCodeId) {
             const qrCode = qrCodesMap[qrCodeId];
             if (qrCode) {
-                qrCode.download({ name: `qr-code-${qrCodeId}`, extension: "png" });
+                qrCode.download({ name: "qr-code", extension: "png", width: 16000, height: 16000 }); // High resolution download
             } else {
                 console.error(`QR Code with ID ${qrCodeId} not found.`);
             }
