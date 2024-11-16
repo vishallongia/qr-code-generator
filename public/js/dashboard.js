@@ -117,8 +117,8 @@ function generateAlphanumericCode(length = 6) {
 }
 
 const qrCode = new QRCodeStyling({
-  width: 200,
-  height: 200,
+  width: 1080,
+  height: 1080,
   type: "canvas",
   data: "https://example.com",
   dotsOptions: {
