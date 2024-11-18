@@ -126,8 +126,8 @@
 
                 if (qrContainer) {
                     const qrCode = new QRCodeStyling({
-                        width: 250,
-                        height: 250,
+                        width: 3000,
+                        height: 3000,
                         type: "canvas",
                         data: `${window.location.protocol}//${window.location.host}/${qrCodeData.code}`,
                         dotsOptions: {
@@ -173,7 +173,7 @@
         function downloadQRCodeShowed(qrCodeId) {
             const qrCode = qrCodesMap[qrCodeId];
             if (qrCode) {
-                qrCode.download({ name: `qr-code-${qrCodeId}`, extension: "png" });
+                qrCode.download({ name: "qr-code", extension: "png", width: 16000, height: 16000 }); // High resolution download
             } else {
                 console.error(`QR Code with ID ${qrCodeId} not found.`);
             }

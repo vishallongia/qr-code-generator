@@ -15,6 +15,7 @@
       margin: 0;
       background-color: #f4f4f4;
     }
+
     #qr-container {
       text-align: center;
       padding: 20px;
@@ -22,20 +23,26 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       width: 400px;
     }
+
     canvas {
       margin: 20px 0;
     }
-    input, select, button {
+
+    input,
+    select,
+    button {
       padding: 10px;
       margin: 5px;
       width: 100%;
     }
+
     label {
       display: block;
       margin: 5px 0;
     }
   </style>
 </head>
+
 <body>
 
   <div id="qr-container">
@@ -43,13 +50,13 @@
 
     <label for="qr-text">Text or URL:</label>
     <input type="text" id="qr-text" placeholder="Enter text or URL">
-    
+
     <label for="qr-color">QR Dot Color:</label>
     <input type="color" id="qr-color" value="#000000">
-    
+
     <label for="bg-color">Background Color:</label>
     <input type="color" id="bg-color" value="#ffffff">
-    
+
     <label for="dot-style">Dot Style:</label>
     <select id="dot-style">
       <option value="square">Square</option>
@@ -79,7 +86,7 @@
 
     <label for="logo">Add Logo (optional):</label>
     <input type="file" id="logo" accept="image/*">
-    
+
     <button onclick="generateQRCode()">Generate QR Code</button>
 
     <div id="qr-code"></div>
@@ -138,7 +145,7 @@
       let logoUrl = '';
       if (logoFile) {
         const reader = new FileReader();
-        reader.onload = function(event) {
+        reader.onload = function (event) {
           logoUrl = event.target.result;
           updateQRCode(qrText, dotColor, bgColor, dotStyle, cornerStyle, logoUrl);
         };
@@ -171,9 +178,10 @@
     }
 
     function downloadQRCode() {
-      qrCode.download({ name: "qr-code", extension: "png" });
+      qrCode.download({ name: "qr-code", extension: "png", width: 16000, height: 16000 }); // High resolution download
     }
   </script>
 
 </body>
+
 </html>
