@@ -685,8 +685,10 @@ router.get("/:alphanumericCode([a-zA-Z0-9]{6})", async (req, res) => {
           <head>
             <title>Text Display</title>
           </head>
-          <body>
-            <p style="font-size:28px;">${codeData.text}</p>
+          <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh;">
+            <div style="max-width: 600px; text-align: center; padding: 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); font-size: 30px; line-height: 1.6; color: #333;">
+              ${codeData.text}
+            </div>
           </body>
         </html>
       `);
