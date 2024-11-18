@@ -116,7 +116,6 @@
         <% if (activeSection === 'generate' && qrCode) { %>
             // Pass qrCode data to the JavaScript function if available and activeSection is 'generate'
             const qr = <%- JSON.stringify(qrCode) %>;
-            console.log("QR Code Data:", qr);
             showGenerateSection(qr);
         <% } %>
     </script>

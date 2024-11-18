@@ -117,8 +117,8 @@ function generateAlphanumericCode(length = 6) {
 }
 
 const qrCode = new QRCodeStyling({
-  width: 1080,
-  height: 1080,
+  width: 3000,
+  height: 3000,
   type: "canvas",
   data: "https://example.com",
   dotsOptions: {
@@ -312,8 +312,9 @@ function showGenerateSection(qr) {
     document.getElementById("text-file").value = qr.text;
   }
   document.getElementById("submit-btn-update").style.display = "block";
-  document.getElementById("submit-btn-generate").style.display = "none";
+  document.getElementById("downloadQRCode").style.display = "block";
   document.getElementById("qr-code").style.display = "block";
+  document.getElementById("submit-btn-generate").style.display = "none";
 }
 
 function downloadQRCode() {

@@ -103,6 +103,7 @@ async function logoutUser() {
       throw new Error(errorData.message || "Logout failed!");
     }
 
+    localStorage.clear();
     return await response.json();
   } catch (error) {
     console.error("Error during logout:", error);
